@@ -1,2 +1,1 @@
-# Cypress-Application
- 
+# Cypress – Community Problem Reporting Application
