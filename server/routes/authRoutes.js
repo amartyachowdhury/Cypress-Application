@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import sendEmail from '../utils/sendEmail.js'; // ✅ new import
 
 const router = express.Router();
 
@@ -38,7 +39,14 @@ router.post('/register', async (req, res) => {
 
         await newUser.save();
 
-        console.log('✅ User registered:', username);
+        // ✅ Send the verification email
+        await sendEmail(
+            email,
+            'Cypress Verification Code',
+            `Hi ${username},\n\nYour verification code is: ${verificationCode}\nThis code will expire in 10 minutes.`
+        );
+
+        console.log('✅ User registered and verification email sent:', username);
         res.status(201).json({ message: 'User registered. Verification code sent to email.' });
     } catch (error) {
         console.error('❌ Register error:', error);
