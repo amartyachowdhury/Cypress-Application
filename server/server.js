@@ -32,4 +32,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((err) => console.error("❌ MongoDB connection failed:", err));
 
 const PORT = process.env.PORT || 5000;
+app.use((req, res) => {
+    res.status(404).json({ message: `No route for ${req.method} ${req.url}` });
+});
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
