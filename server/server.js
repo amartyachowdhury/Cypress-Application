@@ -7,32 +7,39 @@ import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
-const app = express(); // ✅ This must come BEFORE any app.use() or app.post()
+const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// 🔍 Add test route BELOW app is declared
+// 🔍 Debug Test Route
 app.post('/test', (req, res) => {
-    res.status(200).json({ message: 'Test route working ✅' });
+    console.log('🔥 /test route hit');
+    console.log('Request body:', req.body);
+    res.status(200).json({ message: 'Test route success' });
 });
 
 // Auth Routes
 app.use('/api/auth', authRoutes);
 
-// Root
+// Root route
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Cypress backend is running...' });
 });
 
-// DB + Server
+// Fallback for unhandled routes
+app.use((req, res) => {
+    res.status(404).json({ message: `No route for ${req.method} ${req.url}` });
+});
+
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ Connected to MongoDB Atlas"))
     .catch((err) => console.error("❌ MongoDB connection failed:", err));
 
-const PORT = process.env.PORT || 5000;
-app.use((req, res) => {
-    res.status(404).json({ message: `No route for ${req.method} ${req.url}` });
+// Start the server
+const PORT = process.env.PORT || 5050;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
 });
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
