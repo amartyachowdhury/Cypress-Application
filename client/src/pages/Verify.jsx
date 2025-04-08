@@ -1,62 +1,62 @@
+// ✅ Verify.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { getToken } from '../utils/auth';
 
-function Verify() {
+export default function Verify() {
     const [code, setCode] = useState('');
-    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage('');
+        setLoading(true);
         setError('');
 
         try {
-            const res = await axios.post(
-                'http://localhost:5050/api/auth/verify',
-                { code },
-                {
-                    headers: {
-                        Authorization: `Bearer ${getToken()}`
-                    }
-                }
-            );
+            const email = localStorage.getItem('emailForVerification');
+            if (!email) throw new Error('No email found. Please register again.');
 
-            setMessage(res.data.message || 'Account verified successfully!');
+            const response = await axios.post('http://localhost:5050/api/auth/verify', {
+                email,
+                code,
+            });
+
+            localStorage.removeItem('emailForVerification');
+            localStorage.setItem('token', response.data.token);
+            navigate('/');
         } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.message || 'Verification failed');
+            setError(err.response?.data?.message || 'Verification failed.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
-                <h2 className="text-xl font-semibold mb-4 text-center">Verify Your Email</h2>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
+                <h2 className="text-2xl font-bold text-center">Verify Your Email</h2>
+
+                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
                 <input
-                    name="code"
                     type="text"
-                    placeholder="Enter 6-digit code"
+                    placeholder="Verification Code"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    className="w-full mb-4 p-2 border border-gray-300 rounded"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
                     required
                 />
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
+                    className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
+                    disabled={loading}
                 >
-                    Verify
+                    {loading ? 'Verifying...' : 'Verify'}
                 </button>
-
-                {message && <p className="mt-4 text-green-600 text-sm">{message}</p>}
-                {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
             </form>
         </div>
     );
 }
-
-export default Verify;
