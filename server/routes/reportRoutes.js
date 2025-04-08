@@ -53,13 +53,42 @@ router.post('/', authenticate, async (req, res) => {
 router.get('/mine', authenticate, async (req, res) => {
     try {
         const userId = req.user.userId;
-
         const reports = await Report.find({ createdBy: userId }).sort({ createdAt: -1 });
-
         res.status(200).json(reports);
     } catch (error) {
         console.error('❌ Error fetching user reports:', error);
         res.status(500).json({ message: 'Server error while fetching reports' });
+    }
+});
+
+// 🆕 PATCH /api/reports/:id/status - Update the status of a report
+router.patch('/:id/status', authenticate, async (req, res) => {
+    const { status } = req.body;
+    const validStatuses = ['pending', 'in progress', 'resolved'];
+
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    try {
+        const report = await Report.findById(req.params.id);
+
+        if (!report) {
+            return res.status(404).json({ message: 'Report not found' });
+        }
+
+        // Only the creator of the report can update it
+        if (report.createdBy.toString() !== req.user.userId) {
+            return res.status(403).json({ message: 'Not authorized to update this report' });
+        }
+
+        report.status = status;
+        await report.save();
+
+        res.status(200).json({ message: 'Status updated successfully', report });
+    } catch (error) {
+        console.error('❌ Error updating report status:', error);
+        res.status(500).json({ message: 'Server error while updating status' });
     }
 });
 
