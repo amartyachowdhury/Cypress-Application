@@ -49,4 +49,18 @@ router.post('/', authenticate, async (req, res) => {
     }
 });
 
+// 🆕 GET /api/reports/mine - Fetch reports created by logged-in user
+router.get('/mine', authenticate, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const reports = await Report.find({ createdBy: userId }).sort({ createdAt: -1 });
+
+        res.status(200).json(reports);
+    } catch (error) {
+        console.error('❌ Error fetching user reports:', error);
+        res.status(500).json({ message: 'Server error while fetching reports' });
+    }
+});
+
 export default router;
