@@ -1,13 +1,17 @@
-import DashboardMap from './components/DashboardMap';
+import { Routes, Route } from "react-router-dom";
+import Register from "./pages/Register";
+import Verify from "./pages/Verify";
+import SubmitReport from "./pages/SubmitReport";
+import DashboardMap from "./components/DashboardMap";
 
 function App() {
     return (
-        <div className="h-screen w-screen">
-            <header className="p-4 bg-blue-700 text-white text-xl font-semibold shadow">
-                🧭 Cypress – Report Dashboard
-            </header>
-            <DashboardMap />
-        </div>
+        <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify" element={<Verify />} />
+            <Route path="/submit" element={<SubmitReport />} />
+            <Route path="/" element={<DashboardMap />} />
+        </Routes>
     );
 }
 
