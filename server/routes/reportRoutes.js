@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
-// Middleware to verify JWT
+// ✅ JWT Authentication Middleware
 const authenticate = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -16,14 +16,37 @@ const authenticate = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // attaches user info to the request
+        req.user = decoded; // Add user info to request
         next();
     } catch (err) {
         return res.status(403).json({ message: 'Forbidden: Invalid token' });
     }
 };
 
-// 🔽 Submit a report
+// 🌍 GET /api/reports - Public route to fetch all reports
+router.get('/', async (req, res) => {
+    try {
+        const reports = await Report.find().sort({ createdAt: -1 });
+        res.status(200).json(reports);
+    } catch (error) {
+        console.error('❌ Error fetching all reports:', error.message);
+        res.status(500).json({ message: 'Server error while fetching all reports' });
+    }
+});
+
+// 🧑‍💼 GET /api/reports/mine - Fetch reports for logged-in user
+router.get('/mine', authenticate, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const reports = await Report.find({ createdBy: userId }).sort({ createdAt: -1 });
+        res.status(200).json(reports);
+    } catch (error) {
+        console.error('❌ Error fetching user reports:', error);
+        res.status(500).json({ message: 'Server error while fetching reports' });
+    }
+});
+
+// 📝 POST /api/reports - Submit a new report
 router.post('/', authenticate, async (req, res) => {
     const { title, description, severity, location } = req.body;
 
@@ -41,7 +64,6 @@ router.post('/', authenticate, async (req, res) => {
         });
 
         await newReport.save();
-
         res.status(201).json({ message: 'Report submitted successfully!' });
     } catch (error) {
         console.error('❌ Error saving report:', error);
@@ -49,19 +71,7 @@ router.post('/', authenticate, async (req, res) => {
     }
 });
 
-// 🆕 GET /api/reports/mine - Fetch reports created by logged-in user
-router.get('/mine', authenticate, async (req, res) => {
-    try {
-        const userId = req.user.userId;
-        const reports = await Report.find({ createdBy: userId }).sort({ createdAt: -1 });
-        res.status(200).json(reports);
-    } catch (error) {
-        console.error('❌ Error fetching user reports:', error);
-        res.status(500).json({ message: 'Server error while fetching reports' });
-    }
-});
-
-// 🆕 PATCH /api/reports/:id/status - Update the status of a report
+// 🔄 PATCH /api/reports/:id/status - Update the status of a report
 router.patch('/:id/status', authenticate, async (req, res) => {
     const { status } = req.body;
     const validStatuses = ['pending', 'in progress', 'resolved'];
@@ -77,7 +87,6 @@ router.patch('/:id/status', authenticate, async (req, res) => {
             return res.status(404).json({ message: 'Report not found' });
         }
 
-        // Only the creator of the report can update it
         if (report.createdBy.toString() !== req.user.userId) {
             return res.status(403).json({ message: 'Not authorized to update this report' });
         }
