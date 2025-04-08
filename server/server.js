@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import authRoutes from './routes/authRoutes.js';
+import reportRoutes from './routes/reportRoutes.js'; // 🆕 added this line
 
 dotenv.config();
 
@@ -22,6 +23,9 @@ app.post('/test', (req, res) => {
 
 // Auth Routes
 app.use('/api/auth', authRoutes);
+
+// 🆕 Report Routes
+app.use('/api/reports', reportRoutes); // 🆕 mount report routes here
 
 // Root route
 app.get('/', (req, res) => {
