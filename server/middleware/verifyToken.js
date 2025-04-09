@@ -1,16 +1,21 @@
 import jwt from 'jsonwebtoken';
 
-const verifyToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader?.split(' ')[1];
+// Middleware to verify JWT token from Authorization header
+export const verifyToken = (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
-    if (!token) return res.status(401).json({ message: 'Access token missing' });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Unauthorized: No token provided' });
+    }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ message: 'Invalid token' });
-        req.userId = user.id;
-        next();
-    });
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.userId = decoded.userId; // Attach user ID to request
+        next(); // Continue to the next middleware or route
+    } catch (error) {
+        console.error('Token verification failed:', error.message);
+        return res.status(403).json({ message: 'Forbidden: Invalid token' });
+    }
 };
-
-export default verifyToken;

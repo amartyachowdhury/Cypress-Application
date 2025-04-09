@@ -1,87 +1,84 @@
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import axios from "axios";
 
-const DashboardMap = () => {
+// Fix for default marker icons not showing
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+function DashboardMap() {
     const [reports, setReports] = useState([]);
-    const [status, setStatus] = useState('all');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [selectedStatus, setSelectedStatus] = useState("all");
 
     const fetchReports = async () => {
         try {
-            setLoading(true);
-            const token = localStorage.getItem('token');
-            const endpoint =
-                status === 'all'
-                    ? '/api/reports/mine'
-                    : `/api/reports/status/${status}`;
-            const res = await fetch(endpoint, {
-                headers: { Authorization: `Bearer ${token}` }
+            const token = localStorage.getItem("token");
+            const response = await axios.get("http://localhost:5050/api/reports/mine", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
-            if (!res.ok) throw new Error('Fetch failed');
-            const data = await res.json();
-            setReports(data);
-            setError('');
+            setReports(response.data);
         } catch (err) {
-            console.error('❌ Error fetching reports:', err);
-            setError('Failed to load reports.');
-        } finally {
-            setLoading(false);
+            console.error("❌ Error loading reports:", err);
         }
     };
 
     useEffect(() => {
         fetchReports();
-    }, [status]);
+    }, []);
 
-    const statusOptions = ['all', 'pending', 'in-progress', 'resolved'];
+    const filteredReports =
+        selectedStatus === "all"
+            ? reports
+            : reports.filter((report) => report.status === selectedStatus);
 
     return (
-        <div className="relative h-screen w-full">
-            <select
-                className="absolute top-4 right-4 z-[1000] bg-white border px-3 py-2 rounded shadow"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-            >
-                {statusOptions.map((s) => (
-                    <option key={s} value={s}>
-                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </option>
-                ))}
-            </select>
-
-            {loading ? (
-                <p className="text-center mt-20 text-gray-500">Loading reports...</p>
-            ) : error ? (
-                <p className="text-center mt-20 text-red-500">{error}</p>
-            ) : (
-                <MapContainer
-                    center={[43.65107, -79.347015]} // Toronto
-                    zoom={13}
-                    scrollWheelZoom={true}
-                    className="h-full w-full z-0"
+        <div className="h-screen relative">
+            <div className="absolute top-4 right-4 z-[1000] bg-white p-3 rounded-xl shadow-lg">
+                <select
+                    className="p-2 border border-gray-300 rounded-lg"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
                 >
-                    <TileLayer
-                        attribution='&copy; OpenStreetMap contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    {reports.map((r) => (
-                        <Marker key={r._id} position={[r.latitude, r.longitude]} icon={L.icon({ iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png' })}>
-                            <Popup>
-                                <strong>{r.title}</strong>
-                                <br />
-                                {r.description}
-                                <br />
-                                <span>Status: {r.status}</span>
-                            </Popup>
-                        </Marker>
-                    ))}
-                </MapContainer>
-            )}
+                    <option value="all">All Reports</option>
+                    <option value="open">Open</option>
+                    <option value="in progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+            </div>
+
+            <MapContainer center={[43.65107, -79.347015]} zoom={13} className="h-full w-full z-0">
+                <TileLayer
+                    attribution='&copy; OpenStreetMap contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {filteredReports.map((report) => (
+                    <Marker
+                        key={report._id}
+                        position={[
+                            report.location?.coordinates[1],
+                            report.location?.coordinates[0],
+                        ]}
+                    >
+                        <Popup>
+                            <strong>{report.title}</strong>
+                            <br />
+                            {report.description}
+                            <br />
+                            <span>Status: {report.status}</span>
+                        </Popup>
+                    </Marker>
+                ))}
+            </MapContainer>
         </div>
     );
-};
+}
 
 export default DashboardMap;
