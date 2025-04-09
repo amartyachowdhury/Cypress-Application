@@ -1,154 +1,166 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const MyReports = () => {
     const [reports, setReports] = useState([]);
-    const [editingReport, setEditingReport] = useState(null);
-    const [form, setForm] = useState({ title: '', description: '', severity: '', status: '' });
+    const [editingReportId, setEditingReportId] = useState(null);
+    const [editedReport, setEditedReport] = useState({
+        title: "",
+        description: "",
+        severity: "",
+        status: ""
+    });
 
     const fetchReports = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5050/api/reports/mine', {
-                headers: { Authorization: `Bearer ${token}` },
+            const token = localStorage.getItem("token");
+            const res = await axios.get("http://localhost:5050/api/reports/mine", {
+                headers: { Authorization: `Bearer ${token}` }
             });
             setReports(res.data);
         } catch (err) {
-            console.error('❌ Failed to fetch reports', err);
+            console.error("Error fetching your reports:", err);
         }
     };
 
     const handleEditClick = (report) => {
-        setEditingReport(report._id);
-        setForm({
+        setEditingReportId(report._id);
+        setEditedReport({
             title: report.title,
             description: report.description,
             severity: report.severity,
-            status: report.status,
+            status: report.status
         });
+    };
+
+    const handleDelete = async (reportId) => {
+        if (!window.confirm("Are you sure you want to delete this report?")) return;
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete(`http://localhost:5050/api/reports/${reportId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setReports(reports.filter((r) => r._id !== reportId));
+        } catch (err) {
+            console.error("Error deleting report:", err);
+        }
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditedReport((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleUpdate = async () => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:5050/api/reports/${editingReport}`, form, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setEditingReport(null);
-            fetchReports();
-        } catch (err) {
-            console.error('❌ Failed to update report', err);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this report?')) return;
-        try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5050/api/reports/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
+            const token = localStorage.getItem("token");
+            await axios.put(
+                `http://localhost:5050/api/reports/${editingReportId}`,
+                editedReport,
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+            setEditingReportId(null);
+            setEditedReport({
+                title: "",
+                description: "",
+                severity: "",
+                status: ""
             });
             fetchReports();
         } catch (err) {
-            console.error('❌ Failed to delete report', err);
+            console.error("Error updating report:", err);
         }
     };
-
-    const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
     useEffect(() => {
         fetchReports();
     }, []);
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-4">My Submitted Reports</h2>
-            {reports.length === 0 ? (
-                <p>No reports submitted yet.</p>
-            ) : (
-                <div className="space-y-6">
-                    {reports.map((report) =>
-                        editingReport === report._id ? (
-                            <div key={report._id} className="border p-4 rounded shadow bg-white">
-                                <input
-                                    name="title"
-                                    value={form.title}
-                                    onChange={handleChange}
-                                    className="w-full mb-2 p-2 border rounded"
-                                    placeholder="Title"
-                                />
-                                <textarea
-                                    name="description"
-                                    value={form.description}
-                                    onChange={handleChange}
-                                    className="w-full mb-2 p-2 border rounded"
-                                    placeholder="Description"
-                                />
-                                <select
-                                    name="severity"
-                                    value={form.severity}
-                                    onChange={handleChange}
-                                    className="w-full mb-2 p-2 border rounded"
+        <div className="p-6">
+            <h2 className="text-2xl font-semibold mb-6">My Reports</h2>
+            {reports.map((report) => (
+                <div key={report._id} className="bg-white p-4 mb-4 rounded shadow-md">
+                    {editingReportId === report._id ? (
+                        <div className="space-y-2">
+                            <input
+                                className="w-full border p-2 rounded"
+                                type="text"
+                                name="title"
+                                value={editedReport.title}
+                                onChange={handleEditChange}
+                            />
+                            <textarea
+                                className="w-full border p-2 rounded"
+                                name="description"
+                                value={editedReport.description}
+                                onChange={handleEditChange}
+                            />
+                            <select
+                                name="severity"
+                                value={editedReport.severity}
+                                onChange={handleEditChange}
+                                className="w-full border p-2 rounded"
+                            >
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                            <select
+                                name="status"
+                                value={editedReport.status}
+                                onChange={handleEditChange}
+                                className="w-full border p-2 rounded"
+                            >
+                                <option value="open">Open</option>
+                                <option value="in progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleUpdate}
+                                    className="bg-green-600 text-white px-4 py-2 rounded"
                                 >
-                                    <option value="">Select severity</option>
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                </select>
-                                <select
-                                    name="status"
-                                    value={form.status}
-                                    onChange={handleChange}
-                                    className="w-full mb-2 p-2 border rounded"
+                                    Save
+                                </button>
+                                <button
+                                    onClick={() => setEditingReportId(null)}
+                                    className="bg-gray-400 text-white px-4 py-2 rounded"
                                 >
-                                    <option value="open">Open</option>
-                                    <option value="in progress">In Progress</option>
-                                    <option value="resolved">Resolved</option>
-                                </select>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={handleUpdate}
-                                        className="bg-blue-500 text-white px-4 py-1 rounded"
-                                    >
-                                        Save
-                                    </button>
-                                    <button
-                                        onClick={() => setEditingReport(null)}
-                                        className="bg-gray-300 px-4 py-1 rounded"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
+                                    Cancel
+                                </button>
                             </div>
-                        ) : (
-                            <div key={report._id} className="border p-4 rounded shadow bg-white">
-                                <h3 className="font-bold text-lg">{report.title}</h3>
-                                <p className="text-sm text-gray-600">{report.description}</p>
-                                <p className="text-sm mt-1">
-                                    <span className="font-semibold">Severity:</span> {report.severity}
-                                </p>
-                                <p className="text-sm">
-                                    <span className="font-semibold">Status:</span> {report.status}
-                                </p>
-                                <div className="flex gap-3 mt-3">
-                                    <button
-                                        onClick={() => handleEditClick(report)}
-                                        className="bg-yellow-400 text-white px-4 py-1 rounded"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(report._id)}
-                                        className="bg-red-500 text-white px-4 py-1 rounded"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
+                        </div>
+                    ) : (
+                        <>
+                            <h3 className="text-lg font-bold">{report.title}</h3>
+                            <p className="text-gray-700">{report.description}</p>
+                            <p className="text-sm">
+                                <strong>Severity:</strong> {report.severity}
+                            </p>
+                            <p className="text-sm">
+                                <strong>Status:</strong> {report.status}
+                            </p>
+                            <div className="flex gap-2 mt-2">
+                                <button
+                                    onClick={() => handleEditClick(report)}
+                                    className="bg-blue-600 text-white px-4 py-1 rounded"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(report._id)}
+                                    className="bg-red-600 text-white px-4 py-1 rounded"
+                                >
+                                    Delete
+                                </button>
                             </div>
-                        )
+                        </>
                     )}
                 </div>
-            )}
+            ))}
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-// Middleware to verify JWT token from Authorization header
+// ✅ Named export of middleware
 export const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -12,8 +12,8 @@ export const verifyToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.userId = decoded.userId; // Attach user ID to request
-        next(); // Continue to the next middleware or route
+        req.userId = decoded.userId;
+        next();
     } catch (error) {
         console.error('Token verification failed:', error.message);
         return res.status(403).json({ message: 'Forbidden: Invalid token' });

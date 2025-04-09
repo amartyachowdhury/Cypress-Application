@@ -1,16 +1,13 @@
 import express from 'express';
 import Report from '../models/Report.js';
-import verifyToken from '../middleware/verifyToken.js';
+import { verifyToken } from '../middleware/verifyToken.js'; // ⬅️ destructuring import
 
 const router = express.Router();
 
 // ✅ Submit a report
 router.post('/', verifyToken, async (req, res) => {
     try {
-        const report = new Report({
-            ...req.body,
-            createdBy: req.userId,
-        });
+        const report = new Report({ ...req.body, createdBy: req.userId });
         await report.save();
         res.status(201).json({ message: 'Report submitted successfully!', report });
     } catch (err) {
