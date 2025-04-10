@@ -82,4 +82,3 @@ npm run dev
 - Frontend: http://localhost:3000
 - Backend: http://localhost:5050
 
-### Default Admin Credentials
