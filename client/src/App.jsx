@@ -11,6 +11,7 @@ import SubmitReport from './pages/SubmitReport';
 import MyReports from './pages/MyReports';
 import AdminLogin from './admin/AdminLogin';
 import AdminDashboard from './admin/AdminDashboard';
+import AdminRoute from './admin/AdminRoute';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -67,14 +68,14 @@ function App() {
                     }
                 />
 
-                {/* Admin Dashboard */}
-                <Route 
-                    path="/admin/dashboard" 
+                {/* Admin Routes */}
+                <Route
+                    path="/admin/dashboard"
                     element={
-                        <ProtectedRoute>
+                        <AdminRoute>
                             <AdminDashboard />
-                        </ProtectedRoute>
-                    } 
+                        </AdminRoute>
+                    }
                 />
             </Routes>
         </div>

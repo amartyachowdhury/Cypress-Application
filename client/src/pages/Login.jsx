@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
     const navigate = useNavigate();
@@ -105,6 +105,15 @@ function Login() {
                     >
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>
+
+                    <div className="mt-6 text-center">
+                        <Link 
+                            to="/admin/login"
+                            className="text-sm text-blue-600 hover:text-blue-800"
+                        >
+                            Admin Access →
+                        </Link>
+                    </div>
                 </form>
             </div>
         </div>
