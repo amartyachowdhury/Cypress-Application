@@ -85,43 +85,17 @@ npm run dev
 ## Project Structure
 
 Cypress-Application/
-├── client/                 # Frontend React application
+├── client/               # Frontend React application
 │   ├── src/
-│   │   ├── admin/         # Admin components
-│   │   ├── components/    # Reusable components
-│   │   ├── layouts/       # Layout components
-│   │   └── pages/        # Page components
-│   └── public/           # Static files
+│   │   ├── admin/       # Admin components
+│   │   ├── components/  # Reusable components
+│   │   ├── layouts/     # Layout components
+│   │   └── pages/       # Page components
+│   └── public/          # Static files
 │
-└── server/               # Backend Node.js application
-    ├── controllers/      # Route controllers
-    ├── middleware/       # Custom middleware
+└── server/              # Backend Node.js application
+    ├── controllers/     # Route controllers
+    ├── middleware/      # Custom middleware
     ├── models/          # Mongoose models
     └── routes/          # API routes
 ```
-
-## API Endpoints
-
-### Public Routes
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/admin/login` - Admin login
-
-### Protected Routes
-- `GET /api/reports` - Get user's reports
-- `POST /api/reports` - Create new report
-- `GET /api/admin/reports` - Get all reports (admin only)
-- `PATCH /api/admin/reports/:id/status` - Update report status (admin only)
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
