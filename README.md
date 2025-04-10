@@ -71,10 +71,10 @@ VITE_API_URL=http://localhost:5050
 
 4. Start the development servers
 ```bash
-# Start backend server (from server directory)
+# Start backend server (from server/ directory)
 npm run dev
 
-# Start frontend server (from client directory)
+# Start frontend server (from client/ directory)
 npm run dev
 ```
 
