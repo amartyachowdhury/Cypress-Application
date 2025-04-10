@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import authRoutes from './routes/authRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'; // ✅ Admin routes added
 
 dotenv.config();
 
@@ -24,11 +25,14 @@ app.post('/test', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/admin', adminRoutes); // ✅ Admin route
 
+// Health check
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Cypress backend is running...' });
 });
 
+// 404 fallback
 app.use((req, res) => {
     res.status(404).json({ message: `No route for ${req.method} ${req.url}` });
 });

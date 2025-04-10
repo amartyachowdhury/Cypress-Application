@@ -2,15 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remove any conflicting styles */
 html, body, #root {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
+/* Remove overflow hidden as it might hide content */
 body {
-  font-family: sans-serif;
-  background-color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f3f4f6;
+}
+
+/* Add debug styles */
+.app-container {
+  min-height: 100vh;
+  width: 100%;
 }

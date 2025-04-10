@@ -8,6 +8,9 @@ function SubmitReport() {
     const [severity, setSeverity] = useState("low");
     const [coordinates, setCoordinates] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [images, setImages] = useState([]);
+    const [address, setAddress] = useState("");
+    const [locationError, setLocationError] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -57,6 +60,37 @@ function SubmitReport() {
         } catch (err) {
             console.error("❌ Error submitting report:", err);
             alert("Failed to submit report. Please try again.");
+        }
+    };
+
+    const handleImageUpload = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 5) {
+            alert("Maximum 5 images allowed");
+            return;
+        }
+        setImages(files);
+    };
+
+    const handleManualAddress = async (address) => {
+        try {
+            const response = await axios.get(
+                `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json`,
+                {
+                    params: {
+                        access_token: process.env.REACT_APP_MAPBOX_TOKEN,
+                        limit: 1
+                    }
+                }
+            );
+            
+            if (response.data.features.length > 0) {
+                const [lng, lat] = response.data.features[0].center;
+                setCoordinates([lng, lat]);
+                setLocationError("");
+            }
+        } catch (err) {
+            setLocationError("Failed to geocode address");
         }
     };
 

@@ -1,33 +1,60 @@
-import React from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import React from 'react';
+import { Link, useNavigate, Outlet } from 'react-router-dom';
 
-const DashboardLayout = () => {
+export default function DashboardLayout({ children }) {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/login");
+        localStorage.removeItem('token');
+        navigate('/login');
     };
 
     return (
-        <div className="h-screen flex flex-col">
-            <nav className="bg-gray-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
-                <h1 className="text-xl font-bold">Cypress Dashboard</h1>
-                <div className="space-x-4">
-                    <Link to="/dashboard" className="hover:underline">Map</Link>
-                    <Link to="/submit-report" className="hover:underline">Submit Report</Link>
-                    <Link to="/my-reports" className="hover:underline">My Reports</Link>
-                    <button onClick={handleLogout} className="hover:underline text-red-400">
+        <div className="min-h-screen flex flex-col bg-gray-50">
+            <header className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
+                <Link 
+                    to="/dashboard" 
+                    className="group cursor-pointer"
+                >
+                    <h1 className="text-2xl font-bold text-blue-600 group-hover:text-blue-700 transition-colors">
+                        Cypress Citizen Issue Tracker
+                    </h1>
+                    <span className="block text-sm text-gray-500 group-hover:text-gray-700 transition-colors">
+                        Click to return to dashboard
+                    </span>
+                </Link>
+                
+                <nav className="flex items-center space-x-6">
+                    <Link 
+                        to="/dashboard" 
+                        className="text-gray-600 hover:text-blue-600 transition-colors"
+                    >
+                        Home
+                    </Link>
+                    <Link 
+                        to="/dashboard/submit" 
+                        className="text-gray-600 hover:text-blue-600 transition-colors"
+                    >
+                        Submit Report
+                    </Link>
+                    <Link 
+                        to="/dashboard/my-reports" 
+                        className="text-gray-600 hover:text-blue-600 transition-colors"
+                    >
+                        My Reports
+                    </Link>
+                    <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 text-red-600 hover:text-white hover:bg-red-600 rounded-md transition-colors"
+                    >
                         Logout
                     </button>
-                </div>
-            </nav>
+                </nav>
+            </header>
 
-            <main className="flex-grow bg-gray-100 p-4 overflow-auto">
-                <Outlet /> {/* This renders the current route's child component */}
+            <main className="flex-1 p-6">
+                {children || <Outlet />}
             </main>
         </div>
     );
-};
-
-export default DashboardLayout;
+}

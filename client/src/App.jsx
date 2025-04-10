@@ -1,23 +1,83 @@
-import { Routes, Route } from "react-router-dom";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import SubmitReport from "./pages/SubmitReport";
-import DashboardMap from "./components/DashboardMap";
-import MyReports from "./pages/MyReports";
-import DashboardLayout from "./layouts/DashboardLayout";
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import './App.css';  // Make sure CSS is imported
+
+import Register from './pages/Register';
+import Verify from './pages/Verify';
+import Login from './pages/Login';
+import DashboardLayout from './layouts/DashboardLayout';
+import DashboardMap from './components/DashboardMap';
+import SubmitReport from './pages/SubmitReport';
+import MyReports from './pages/MyReports';
+import AdminLogin from './admin/AdminLogin';
+import AdminDashboard from './admin/AdminDashboard';
+
+// Protected Route wrapper component
+const ProtectedRoute = ({ children }) => {
+    const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        console.log("Protected route - token check:", !!token);
+        
+        if (!token) {
+            console.log("No token found, redirecting to login");
+            navigate("/login", { replace: true });
+        } else {
+            setIsAuthenticated(true);
+        }
+        setIsLoading(false);
+    }, [navigate]);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    return isAuthenticated ? children : null;
+};
 
 function App() {
-    return (
-        <Routes>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+    console.log('App rendering'); // Add debug log
 
-            <Route path="/" element={<DashboardLayout />}>
-                <Route path="dashboard" element={<DashboardMap />} />
-                <Route path="submit" element={<SubmitReport />} />
-                <Route path="my-reports" element={<MyReports />} />
-            </Route>
-        </Routes>
+    return (
+        <div className="app-container">
+            <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/verify" element={<Verify />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+
+                {/* Protected User Dashboard */}
+                <Route
+                    path="/dashboard/*"
+                    element={
+                        <ProtectedRoute>
+                            <DashboardLayout>
+                                <Routes>
+                                    <Route index element={<DashboardMap />} />
+                                    <Route path="submit" element={<SubmitReport />} />
+                                    <Route path="my-reports" element={<MyReports />} />
+                                </Routes>
+                            </DashboardLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Admin Dashboard */}
+                <Route 
+                    path="/admin/dashboard" 
+                    element={
+                        <ProtectedRoute>
+                            <AdminDashboard />
+                        </ProtectedRoute>
+                    } 
+                />
+            </Routes>
+        </div>
     );
 }
 
