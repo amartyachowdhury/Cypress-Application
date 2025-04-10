@@ -43,7 +43,7 @@ A full-stack web application that allows citizens to report and track local issu
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/Cypress-Application.git
+git clone https://github.com/amartyachowdhury/Cypress-Application.git
 cd Cypress-Application
 ```
 
