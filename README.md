@@ -1,4 +1,4 @@
-# Cypress Citizen Issue Tracker
+# Cypress - Community Problem Reporting Application
 
 A full-stack web application that allows citizens to report and track local issues in their community. Built with the MERN stack (MongoDB, Express.js, React, Node.js).
 
