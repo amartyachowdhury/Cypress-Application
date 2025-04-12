@@ -16,8 +16,8 @@ export default function DashboardLayout({ children }) {
                     to="/dashboard" 
                     className="group cursor-pointer"
                 >
-                    <h1 className="text-2xl font-bold text-blue-600 group-hover:text-blue-700 transition-colors">
-                        Cypress Citizen Issue Tracker
+                    <h1 className="text-2xl font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
+                        Cypress - Community Problem Reporting Application
                     </h1>
                     <span className="block text-sm text-gray-500 group-hover:text-gray-700 transition-colors">
                         Click to return to dashboard

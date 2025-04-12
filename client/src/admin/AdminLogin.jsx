@@ -38,7 +38,7 @@ function AdminLogin() {
             <div className="max-w-md w-full">
                 <div className="text-center mb-8">
                     <h2 className="text-3xl font-bold text-gray-900">Admin Portal</h2>
-                    <p className="text-gray-600 mt-2">Cypress Citizen Issue Tracker</p>
+                    <p className="text-gray-600 mt-2">Cypress - Community Problem Reporting Application</p>
                 </div>
 
                 <form onSubmit={handleAdminLogin} className="bg-white p-8 rounded-lg shadow-md">
