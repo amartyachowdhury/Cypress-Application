@@ -13,6 +13,9 @@ const MyReports = () => {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [filterStatus, setFilterStatus] = useState("all");
+    const [filterCategory, setFilterCategory] = useState("all");
+    const [showFilters, setShowFilters] = useState(false);
     const navigate = useNavigate();
 
     const fetchReports = async () => {
@@ -52,7 +55,7 @@ const MyReports = () => {
     };
 
     const handleEditClick = (report) => {
-        setEditingReportId(report._id);
+        setEditingReportId(report.id);
         setEditedReport({
             title: report.title,
             description: report.description,
@@ -68,7 +71,7 @@ const MyReports = () => {
             await axios.delete(`http://localhost:5050/api/reports/${reportId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setReports(reports.filter((r) => r._id !== reportId));
+            setReports(reports.filter((r) => r.id !== reportId));
         } catch (err) {
             console.error("Error deleting report:", err);
         }
@@ -102,148 +105,331 @@ const MyReports = () => {
         }
     };
 
+    const handleCancelEdit = () => {
+        setEditingReportId(null);
+        setEditedReport({
+            title: "",
+            description: "",
+            severity: "",
+            status: ""
+        });
+    };
+
     useEffect(() => {
         fetchReports();
     }, []);
 
+    const getStatusBadge = (status) => {
+        const colors = {
+            'open': 'bg-gray-100 text-gray-800',
+            'in progress': 'bg-blue-100 text-blue-800',
+            'resolved': 'bg-green-100 text-green-800'
+        };
+        return (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || colors.open}`}>
+                {status}
+            </span>
+        );
+    };
+
+    const getSeverityBadge = (severity) => {
+        const colors = {
+            'low': 'bg-green-100 text-green-800',
+            'medium': 'bg-yellow-100 text-yellow-800',
+            'high': 'bg-red-100 text-red-800'
+        };
+        return (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[severity] || colors.low}`}>
+                {severity}
+            </span>
+        );
+    };
+
+    const getCategoryIcon = (category) => {
+        const icons = {
+            'infrastructure': '🏗️',
+            'safety': '🛡️',
+            'environment': '🌱',
+            'noise': '🔊',
+            'other': '📋'
+        };
+        return icons[category] || '📋';
+    };
+
+    const filteredReports = reports.filter(report => {
+        const statusMatch = filterStatus === "all" || report.status === filterStatus;
+        const categoryMatch = filterCategory === "all" || report.category === filterCategory;
+        return statusMatch && categoryMatch;
+    });
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-96">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading your reports...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="max-w-6xl mx-auto p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">My Reports</h2>
-                <button
-                    onClick={() => navigate('/dashboard/submit')}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                    Submit New Report
-                </button>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                            My Reports 📋
+                        </h1>
+                        <p className="text-gray-600">
+                            Manage and track your community reports
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => navigate('/dashboard/submit')}
+                        className="mt-4 md:mt-0 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2"
+                    >
+                        <span>📝</span>
+                        <span>Submit New Report</span>
+                    </button>
+                </div>
             </div>
 
-            {isLoading && (
-                <div className="flex justify-center items-center h-64">
-                    <div className="text-gray-600">Loading reports...</div>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-600 text-sm">Total Reports</p>
+                            <p className="text-2xl font-bold text-gray-800">{reports.length}</p>
+                        </div>
+                        <div className="text-3xl">📊</div>
+                    </div>
                 </div>
-            )}
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-600 text-sm">Open</p>
+                            <p className="text-2xl font-bold text-gray-800">
+                                {reports.filter(r => r.status === 'open').length}
+                            </p>
+                        </div>
+                        <div className="text-3xl">📭</div>
+                    </div>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-600 text-sm">In Progress</p>
+                            <p className="text-2xl font-bold text-blue-600">
+                                {reports.filter(r => r.status === 'in progress').length}
+                            </p>
+                        </div>
+                        <div className="text-3xl">🔄</div>
+                    </div>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-600 text-sm">Resolved</p>
+                            <p className="text-2xl font-bold text-green-600">
+                                {reports.filter(r => r.status === 'resolved').length}
+                            </p>
+                        </div>
+                        <div className="text-3xl">✅</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Filters */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+                <div className="p-4 border-b border-gray-100">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4 md:mb-0">
+                            Your Reports ({filteredReports.length})
+                        </h2>
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2"
+                            >
+                                <span>🔍</span>
+                                <span>Filters</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {showFilters && (
+                    <div className="p-4 border-b border-gray-100 bg-gray-50">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                <select
+                                    value={filterStatus}
+                                    onChange={(e) => setFilterStatus(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                                    <option value="all">All Status</option>
+                                    <option value="open">Open</option>
+                                    <option value="in progress">In Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                <select
+                                    value={filterCategory}
+                                    onChange={(e) => setFilterCategory(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                                    <option value="all">All Categories</option>
+                                    <option value="infrastructure">Infrastructure</option>
+                                    <option value="safety">Safety</option>
+                                    <option value="environment">Environment</option>
+                                    <option value="noise">Noise</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Reports List */}
+                <div className="divide-y divide-gray-100">
+                    {filteredReports.length === 0 ? (
+                        <div className="p-8 text-center">
+                            <div className="text-4xl mb-4">📭</div>
+                            <h3 className="text-lg font-medium text-gray-800 mb-2">No reports found</h3>
+                            <p className="text-gray-600 mb-4">
+                                {reports.length === 0 
+                                    ? "You haven't submitted any reports yet." 
+                                    : "Try adjusting your filters."
+                                }
+                            </p>
+                            <button
+                                onClick={() => navigate('/dashboard/submit')}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Submit Your First Report
+                            </button>
+                        </div>
+                    ) : (
+                        filteredReports.map((report) => (
+                            <div key={report.id} className="p-6 hover:bg-gray-50 transition-colors">
+                                {editingReportId === report.id ? (
+                                    /* Edit Mode */
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                                                <input
+                                                    type="text"
+                                                    name="title"
+                                                    value={editedReport.title}
+                                                    onChange={handleEditChange}
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                                <select
+                                                    name="status"
+                                                    value={editedReport.status}
+                                                    onChange={handleEditChange}
+                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="open">Open</option>
+                                                    <option value="in progress">In Progress</option>
+                                                    <option value="resolved">Resolved</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                            <textarea
+                                                name="description"
+                                                value={editedReport.description}
+                                                onChange={handleEditChange}
+                                                rows={3}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                            />
+                                        </div>
+                                        <div className="flex justify-end space-x-2">
+                                            <button
+                                                onClick={handleCancelEdit}
+                                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={handleUpdate}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                            >
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* View Mode */
+                                    <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4">
+                                        <div className="flex-1">
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div className="flex items-center space-x-3">
+                                                    <span className="text-2xl">{getCategoryIcon(report.category)}</span>
+                                                    <div>
+                                                        <h3 className="text-lg font-semibold text-gray-800">{report.title}</h3>
+                                                        <div className="flex items-center space-x-2 mt-1">
+                                                            {getStatusBadge(report.status)}
+                                                            {getSeverityBadge(report.severity)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    <button
+                                                        onClick={() => handleEditClick(report)}
+                                                        className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(report.id)}
+                                                        className="px-3 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <p className="text-gray-600 mb-3">{report.description}</p>
+                                            <div className="flex flex-wrap items-center space-x-4 text-sm text-gray-500">
+                                                <span>📂 {report.category}</span>
+                                                {report.address && <span>📍 {report.address}</span>}
+                                                <span>📅 {new Date(report.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                        {report.images && report.images.length > 0 && (
+                                            <div className="md:w-24 md:flex-shrink-0">
+                                                <img 
+                                                    src={report.images[0]} 
+                                                    alt="Report" 
+                                                    className="w-full h-20 md:h-24 object-cover rounded-lg"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
 
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg">
                     {error}
                 </div>
             )}
-
-            {!isLoading && !error && reports.length === 0 && (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                    <h3 className="text-xl font-medium text-gray-600 mb-2">No Reports Yet</h3>
-                    <p className="text-gray-500 mb-4">You haven't submitted any reports yet.</p>
-                    <button
-                        onClick={() => navigate('/dashboard/submit')}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Submit Your First Report
-                    </button>
-                </div>
-            )}
-
-            <div className="space-y-4">
-                {reports.map((report) => (
-                    <div key={report._id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                        {editingReportId === report._id ? (
-                            <div className="space-y-4">
-                                <input
-                                    className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    type="text"
-                                    name="title"
-                                    value={editedReport.title}
-                                    onChange={handleEditChange}
-                                    placeholder="Report Title"
-                                />
-                                <textarea
-                                    className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    name="description"
-                                    value={editedReport.description}
-                                    onChange={handleEditChange}
-                                    rows="3"
-                                    placeholder="Report Description"
-                                />
-                                <div className="grid grid-cols-2 gap-4">
-                                    <select
-                                        name="severity"
-                                        value={editedReport.severity}
-                                        onChange={handleEditChange}
-                                        className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    >
-                                        <option value="">Select Severity</option>
-                                        <option value="low">Low</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="high">High</option>
-                                    </select>
-                                    <select
-                                        name="status"
-                                        value={editedReport.status}
-                                        onChange={handleEditChange}
-                                        className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    >
-                                        <option value="">Select Status</option>
-                                        <option value="open">Open</option>
-                                        <option value="in progress">In Progress</option>
-                                        <option value="resolved">Resolved</option>
-                                    </select>
-                                </div>
-                                <div className="flex justify-end space-x-2">
-                                    <button
-                                        onClick={() => setEditingReportId(null)}
-                                        className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleUpdate}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                    >
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="flex justify-between items-start">
-                                    <h3 className="text-xl font-semibold text-gray-800">{report.title}</h3>
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => handleEditClick(report)}
-                                            className="text-blue-600 hover:text-blue-800"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(report._id)}
-                                            className="text-red-600 hover:text-red-800"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
-                                <p className="mt-2 text-gray-600">{report.description}</p>
-                                <div className="mt-4 flex items-center space-x-4">
-                                    <span className={`px-2 py-1 rounded-full text-sm ${
-                                        report.severity === 'high' ? 'bg-red-100 text-red-800' :
-                                        report.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                        'bg-green-100 text-green-800'
-                                    }`}>
-                                        {report.severity?.charAt(0).toUpperCase() + report.severity?.slice(1)} Priority
-                                    </span>
-                                    <span className={`px-2 py-1 rounded-full text-sm ${
-                                        report.status === 'resolved' ? 'bg-green-100 text-green-800' :
-                                        report.status === 'in progress' ? 'bg-blue-100 text-blue-800' :
-                                        'bg-gray-100 text-gray-800'
-                                    }`}>
-                                        {report.status?.charAt(0).toUpperCase() + report.status?.slice(1)}
-                                    </span>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                ))}
-            </div>
         </div>
     );
 };

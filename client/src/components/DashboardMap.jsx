@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -40,6 +41,29 @@ const createCustomIcon = (severity) => {
     });
 };
 
+// Quick Action Card Component
+const QuickActionCard = ({ title, description, icon, onClick, color = "blue" }) => {
+    const colorClasses = {
+        blue: "bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700",
+        green: "bg-green-50 border-green-200 hover:bg-green-100 text-green-700",
+        purple: "bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-700",
+        orange: "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-700"
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            className={`w-full p-6 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-lg ${colorClasses[color]}`}
+        >
+            <div className="text-center">
+                <div className="text-3xl mb-3">{icon}</div>
+                <h3 className="font-semibold text-lg mb-2">{title}</h3>
+                <p className="text-sm opacity-80">{description}</p>
+            </div>
+        </button>
+    );
+};
+
 const DashboardMap = () => {
     const [reports, setReports] = useState([]);
     const [filteredStatus, setFilteredStatus] = useState("all");
@@ -48,6 +72,8 @@ const DashboardMap = () => {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(false);
+    const [showMap, setShowMap] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchReports = async () => {
@@ -99,43 +125,168 @@ const DashboardMap = () => {
         }
     };
 
-    return (
-        <div className="relative h-[calc(100vh-80px)]">
-            {error && (
-                <div className="absolute top-4 left-4 right-4 z-[1000] bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    {error}
+    const getStatusBadge = (status) => {
+        const colors = {
+            'open': 'bg-gray-100 text-gray-800',
+            'in progress': 'bg-blue-100 text-blue-800',
+            'resolved': 'bg-green-100 text-green-800'
+        };
+        return (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || colors.open}`}>
+                {status}
+            </span>
+        );
+    };
+
+    const getSeverityBadge = (severity) => {
+        const colors = {
+            'low': 'bg-green-100 text-green-800',
+            'medium': 'bg-yellow-100 text-yellow-800',
+            'high': 'bg-red-100 text-red-800'
+        };
+        return (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[severity] || colors.low}`}>
+                {severity}
+            </span>
+        );
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-96">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading your community reports...</p>
                 </div>
-            )}
-            
-            {isLoading && (
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-lg text-gray-600">Loading reports...</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6">
+            {/* Welcome Section */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="text-center mb-6">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                        Welcome to Your Community Hub! 🌳
+                    </h1>
+                    <p className="text-gray-600 max-w-2xl mx-auto">
+                        Stay connected with your community. View reports, submit new issues, and track progress on local improvements.
+                    </p>
+                </div>
+
+                {/* Quick Action Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <QuickActionCard
+                        title="Submit Report"
+                        description="Report a new community issue"
+                        icon="📝"
+                        onClick={() => navigate('/dashboard/submit')}
+                        color="blue"
+                    />
+                    <QuickActionCard
+                        title="My Reports"
+                        description="View and manage your reports"
+                        icon="📋"
+                        onClick={() => navigate('/dashboard/my-reports')}
+                        color="green"
+                    />
+                    <QuickActionCard
+                        title="Community Stats"
+                        description="See community activity"
+                        icon="📊"
+                        onClick={() => setShowMap(!showMap)}
+                        color="purple"
+                    />
+                    <QuickActionCard
+                        title="Recent Activity"
+                        description="Latest community updates"
+                        icon="🔄"
+                        onClick={() => setShowFilters(!showFilters)}
+                        color="orange"
+                    />
+                </div>
+
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-blue-600 text-sm font-medium">Total Reports</p>
+                                <p className="text-2xl font-bold text-blue-800">{reports.length}</p>
+                            </div>
+                            <div className="text-3xl">📊</div>
+                        </div>
+                    </div>
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-green-600 text-sm font-medium">Resolved</p>
+                                <p className="text-2xl font-bold text-green-800">
+                                    {reports.filter(r => r.status === 'resolved').length}
+                                </p>
+                            </div>
+                            <div className="text-3xl">✅</div>
+                        </div>
+                    </div>
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-orange-600 text-sm font-medium">In Progress</p>
+                                <p className="text-2xl font-bold text-orange-800">
+                                    {reports.filter(r => r.status === 'in progress').length}
+                                </p>
+                            </div>
+                            <div className="text-3xl">🔄</div>
+                        </div>
                     </div>
                 </div>
-            )}
+            </div>
 
-            {/* Filter Controls */}
-            <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                    <h3 className="font-semibold text-gray-800">Filters</h3>
+            {/* Map/List Toggle */}
+            <div className="flex justify-between items-center">
+                <div className="flex space-x-2">
                     <button
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => setShowMap(true)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            showMap 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
                     >
-                        {showFilters ? 'Hide' : 'Show'}
+                        🗺️ Map View
+                    </button>
+                    <button
+                        onClick={() => setShowMap(false)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            !showMap 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                    >
+                        📋 List View
                     </button>
                 </div>
-                
-                {showFilters && (
-                    <div className="space-y-3">
+
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                >
+                    🔍 Filters
+                </button>
+            </div>
+
+            {/* Filters */}
+            {showFilters && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h3 className="text-lg font-semibold mb-4">Filter Reports</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                             <select
                                 value={filteredStatus}
                                 onChange={(e) => setFilteredStatus(e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md text-sm"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="all">All Status</option>
                                 <option value="open">Open</option>
@@ -143,13 +294,12 @@ const DashboardMap = () => {
                                 <option value="resolved">Resolved</option>
                             </select>
                         </div>
-
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                             <select
                                 value={filteredCategory}
                                 onChange={(e) => setFilteredCategory(e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md text-sm"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="all">All Categories</option>
                                 <option value="infrastructure">Infrastructure</option>
@@ -159,13 +309,12 @@ const DashboardMap = () => {
                                 <option value="other">Other</option>
                             </select>
                         </div>
-
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Severity</label>
                             <select
                                 value={filteredSeverity}
                                 onChange={(e) => setFilteredSeverity(e.target.value)}
-                                className="w-full px-3 py-2 border rounded-md text-sm"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="all">All Severities</option>
                                 <option value="low">Low</option>
@@ -174,109 +323,132 @@ const DashboardMap = () => {
                             </select>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
-            {/* Report Count */}
-            <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg px-4 py-2">
-                <p className="text-sm text-gray-600">
-                    Showing <span className="font-semibold">{filteredReports.length}</span> of <span className="font-semibold">{reports.length}</span> reports
-                </p>
-            </div>
-
-            <MapContainer 
-                center={defaultCenter} 
-                zoom={13} 
-                className="h-full w-full z-0"
-            >
-                <TileLayer 
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                {filteredReports.map((report) => {
-                    // Add validation for location data
-                    if (!report.location || !report.location.coordinates || 
-                        !Array.isArray(report.location.coordinates) || 
-                        report.location.coordinates.length !== 2) {
-                        console.warn('Invalid location data for report:', report);
-                        return null;
-                    }
-
-                    // MongoDB stores coordinates as [longitude, latitude]
-                    // Leaflet expects [latitude, longitude]
-                    const [longitude, latitude] = report.location.coordinates;
-                    
-                    return (
-                        <Marker
-                            key={report._id}
-                            position={[latitude, longitude]}
-                            icon={createCustomIcon(report.severity)}
+            {/* Map View */}
+            {showMap ? (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-4 border-b border-gray-100">
+                        <h2 className="text-xl font-semibold text-gray-800">
+                            Community Map ({filteredReports.length} reports)
+                        </h2>
+                        <p className="text-gray-600 text-sm">Click on markers to view report details</p>
+                    </div>
+                    <div className="h-96 md:h-[500px] relative">
+                        <MapContainer
+                            center={defaultCenter}
+                            zoom={13}
+                            className="w-full h-full"
+                            style={{ minHeight: '400px' }}
                         >
-                            <Popup className="custom-popup">
-                                <div className="p-3 max-w-sm">
-                                    <h3 className="font-bold text-lg text-gray-800 mb-2">{report.title}</h3>
-                                    <p className="text-gray-600 text-sm mb-3">{report.description}</p>
-                                    
-                                    <div className="space-y-2 mb-3">
-                                        <p className="text-sm">
-                                            <span className="font-semibold">Status:</span> 
-                                            <span className={`ml-1 ${getStatusColor(report.status)}`}>
-                                                {report.status}
-                                            </span>
-                                        </p>
-                                        <p className="text-sm">
-                                            <span className="font-semibold">Severity:</span> 
-                                            <span className={`ml-1 ${getSeverityColor(report.severity)}`}>
-                                                {report.severity}
-                                            </span>
-                                        </p>
-                                        {report.category && (
-                                            <p className="text-sm">
-                                                <span className="font-semibold">Category:</span> 
-                                                <span className="ml-1 text-gray-600 capitalize">
-                                                    {report.category}
-                                                </span>
-                                            </p>
-                                        )}
-                                        {report.address && (
-                                            <p className="text-sm">
-                                                <span className="font-semibold">Address:</span> 
-                                                <span className="ml-1 text-gray-600">
-                                                    {report.address}
-                                                </span>
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Display images if available */}
-                                    {report.images && report.images.length > 0 && (
-                                        <div className="mb-3">
-                                            <p className="font-semibold text-sm mb-2">Images:</p>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {report.images.slice(0, 4).map((image, index) => (
-                                                    <img
-                                                        key={index}
-                                                        src={image}
-                                                        alt={`Report ${index + 1}`}
-                                                        className="w-full h-16 object-cover rounded"
-                                                        onError={(e) => {
-                                                            e.target.style.display = 'none';
-                                                        }}
-                                                    />
-                                                ))}
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                            {filteredReports.map((report) => (
+                                <Marker
+                                    key={report.id}
+                                    position={[report.location.coordinates[1], report.location.coordinates[0]]}
+                                    icon={createCustomIcon(report.severity)}
+                                >
+                                    <Popup className="custom-popup">
+                                        <div className="p-2">
+                                            <h3 className="font-semibold text-lg mb-2">{report.title}</h3>
+                                            <p className="text-gray-600 mb-3">{report.description}</p>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm text-gray-500">Status:</span>
+                                                    {getStatusBadge(report.status)}
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm text-gray-500">Severity:</span>
+                                                    {getSeverityBadge(report.severity)}
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm text-gray-500">Category:</span>
+                                                    <span className="text-sm font-medium capitalize">{report.category}</span>
+                                                </div>
+                                                {report.address && (
+                                                    <div className="text-sm text-gray-500">
+                                                        📍 {report.address}
+                                                    </div>
+                                                )}
+                                                {report.images && report.images.length > 0 && (
+                                                    <div className="mt-3">
+                                                        <img 
+                                                            src={report.images[0]} 
+                                                            alt="Report" 
+                                                            className="w-full h-24 object-cover rounded-lg"
+                                                        />
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    )}
-
-                                    <p className="text-xs text-gray-500">
-                                        Created: {new Date(report.createdAt).toLocaleDateString()}
-                                    </p>
+                                    </Popup>
+                                </Marker>
+                            ))}
+                        </MapContainer>
+                    </div>
+                </div>
+            ) : (
+                /* List View */
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+                    <div className="p-4 border-b border-gray-100">
+                        <h2 className="text-xl font-semibold text-gray-800">
+                            Report List ({filteredReports.length} reports)
+                        </h2>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                        {filteredReports.length === 0 ? (
+                            <div className="p-8 text-center">
+                                <div className="text-4xl mb-4">📭</div>
+                                <h3 className="text-lg font-medium text-gray-800 mb-2">No reports found</h3>
+                                <p className="text-gray-600 mb-4">Try adjusting your filters or submit a new report.</p>
+                                <button
+                                    onClick={() => navigate('/dashboard/submit')}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Submit Report
+                                </button>
+                            </div>
+                        ) : (
+                            filteredReports.map((report) => (
+                                <div key={report.id} className="p-6 hover:bg-gray-50 transition-colors">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center space-x-3 mb-2">
+                                                <h3 className="text-lg font-semibold text-gray-800">{report.title}</h3>
+                                                {getStatusBadge(report.status)}
+                                                {getSeverityBadge(report.severity)}
+                                            </div>
+                                            <p className="text-gray-600 mb-3">{report.description}</p>
+                                            <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span>📂 {report.category}</span>
+                                                {report.address && <span>📍 {report.address}</span>}
+                                                <span>📅 {new Date(report.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                        {report.images && report.images.length > 0 && (
+                                            <img 
+                                                src={report.images[0]} 
+                                                alt="Report" 
+                                                className="w-20 h-20 object-cover rounded-lg ml-4"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
-                            </Popup>
-                        </Marker>
-                    );
-                })}
-            </MapContainer>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg">
+                    {error}
+                </div>
+            )}
         </div>
     );
 };
