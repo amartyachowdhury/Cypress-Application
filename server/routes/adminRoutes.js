@@ -3,31 +3,71 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import adminAuth from '../middleware/adminAuth.js';
-import {
-    loginAdmin,
-    verifyAdmin,
-    getAllReports,
-    updateReportStatus
-} from '../controllers/adminController.js';
 import Report from '../models/Report.js';
+import Admin from '../models/Admin.js';
 
 dotenv.config();
 
 const router = express.Router();
 
-// Hardcoded admin credentials (for MVP)
-// In production, replace with a proper Admin model stored in MongoDB
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@cypressapp.io';
-const ADMIN_PASSWORD_HASH = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
+// Generate JWT Token
+const generateToken = (admin) => {
+    return jwt.sign(
+        { _id: admin._id.toString() },
+        process.env.JWT_SECRET || 'your_jwt_secret',
+        { expiresIn: '24h' }
+    );
+};
 
-// Public routes
-router.post('/login', loginAdmin);
+// Admin Login
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log('Login attempt for:', email);
 
-// Protected routes
-router.get('/verify', adminAuth, verifyAdmin);
+        const admin = await Admin.findOne({ email });
+        if (!admin) {
+            return res.status(401).json({ message: 'Invalid admin credentials' });
+        }
+
+        const isMatch = await admin.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid admin credentials' });
+        }
+
+        const token = generateToken(admin);
+        res.json({
+            token,
+            admin: {
+                id: admin._id,
+                email: admin.email,
+                name: admin.name
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error during login' });
+    }
+});
+
+// Verify Admin Token
+router.get('/verify', adminAuth, async (req, res) => {
+    try {
+        res.json({ 
+            admin: {
+                id: req.admin._id,
+                email: req.admin.email,
+                name: req.admin.name
+            }
+        });
+    } catch (error) {
+        console.error('Error verifying admin:', error);
+        res.status(500).json({ message: 'Server error during verification' });
+    }
+});
 
 // 📊 Get all reports with filtering and pagination
-router.get('/reports', verifyAdmin, async (req, res) => {
+router.get('/reports', adminAuth, async (req, res) => {
     try {
         const { status, category, severity, page = 1, limit = 10 } = req.query;
         
@@ -57,7 +97,7 @@ router.get('/reports', verifyAdmin, async (req, res) => {
 });
 
 // 📈 Get dashboard statistics
-router.get('/stats', verifyAdmin, async (req, res) => {
+router.get('/stats', adminAuth, async (req, res) => {
     try {
         const [total, open, inProgress, resolved] = await Promise.all([
             Report.countDocuments(),
@@ -79,7 +119,7 @@ router.get('/stats', verifyAdmin, async (req, res) => {
 });
 
 // 🔄 Update report status
-router.patch('/reports/:id/status', verifyAdmin, async (req, res) => {
+router.patch('/reports/:id/status', adminAuth, async (req, res) => {
     try {
         const { status } = req.body;
         const report = await Report.findByIdAndUpdate(
@@ -100,7 +140,7 @@ router.patch('/reports/:id/status', verifyAdmin, async (req, res) => {
 });
 
 // 📍 Get reports by location (within radius)
-router.get('/reports/nearby', verifyAdmin, async (req, res) => {
+router.get('/reports/nearby', adminAuth, async (req, res) => {
     try {
         const { longitude, latitude, radius = 5000 } = req.query; // radius in meters
         
