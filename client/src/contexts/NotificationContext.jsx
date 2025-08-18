@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import React, { createContext, useContext, useState } from 'react';
 
 const NotificationContext = createContext();
 
@@ -13,59 +12,6 @@ export const useNotifications = () => {
 
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
-    const [socket, setSocket] = useState(null);
-    const [isConnected, setIsConnected] = useState(false);
-
-    useEffect(() => {
-        // Initialize socket connection with error handling
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const newSocket = io('http://localhost:5050', {
-                    timeout: 5000, // 5 second timeout
-                    forceNew: true
-                });
-                
-                setSocket(newSocket);
-
-                // Socket event listeners
-                newSocket.on('connect', () => {
-                    console.log('Connected to notification server');
-                    setIsConnected(true);
-                    
-                    // Authenticate with user ID
-                    const userId = localStorage.getItem('userId');
-                    if (userId) {
-                        newSocket.emit('authenticate', userId);
-                    }
-                });
-
-                newSocket.on('disconnect', () => {
-                    console.log('Disconnected from notification server');
-                    setIsConnected(false);
-                });
-
-                newSocket.on('notification', (notification) => {
-                    console.log('Received notification:', notification);
-                    addNotification(notification);
-                });
-
-                newSocket.on('connect_error', (error) => {
-                    console.warn('Socket connection error:', error);
-                    setIsConnected(false);
-                });
-
-                return () => {
-                    if (newSocket) {
-                        newSocket.close();
-                    }
-                };
-            } catch (error) {
-                console.warn('Failed to initialize socket connection:', error);
-                // Don't crash the app if socket fails
-            }
-        }
-    }, []);
 
     const addNotification = (notification) => {
         const newNotification = {
@@ -118,7 +64,7 @@ export const NotificationProvider = ({ children }) => {
         getUnreadCount,
         markAsRead,
         markAllAsRead,
-        isConnected
+        isConnected: false // Always false for now
     };
 
     return (

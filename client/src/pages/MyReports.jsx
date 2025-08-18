@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-const MyReports = () => {
+function MyReports() {
     const [reports, setReports] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState("");
     const [editingReportId, setEditingReportId] = useState(null);
     const [editedReport, setEditedReport] = useState({
         title: "",
@@ -11,8 +13,6 @@ const MyReports = () => {
         severity: "",
         status: ""
     });
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [filterStatus, setFilterStatus] = useState("all");
     const [filterCategory, setFilterCategory] = useState("all");
     const [showFilters, setShowFilters] = useState(false);
@@ -21,13 +21,31 @@ const MyReports = () => {
     const fetchReports = async () => {
         try {
             const token = localStorage.getItem("token");
+            
+            // Check if we have a real token or just a test token
+            if (token === 'test-token') {
+                // No mock data - show empty state for test token
+                setReports([]);
+                setIsLoading(false);
+                return;
+            }
+
             const response = await axios.get("http://localhost:5050/api/reports/mine", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setReports(response.data);
         } catch (err) {
             console.error("Error fetching reports:", err);
-            setError("Failed to load reports");
+            if (err.response?.status === 401) {
+                setError("Authentication failed. Please log in again.");
+                // Redirect to login after a delay
+                setTimeout(() => {
+                    localStorage.removeItem('token');
+                    navigate('/login');
+                }, 2000);
+            } else {
+                setError("Failed to load reports. Please try again later.");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -45,20 +63,34 @@ const MyReports = () => {
 
     const handleDelete = async (reportId) => {
         if (!window.confirm("Are you sure you want to delete this report?")) return;
+        
+        const token = localStorage.getItem("token");
+        if (token === 'test-token') {
+            // Show message for test token
+            alert("This is a demo account. Delete functionality requires a real account.");
+            return;
+        }
+
         try {
-            const token = localStorage.getItem("token");
             await axios.delete(`http://localhost:5050/api/reports/${reportId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setReports(reports.filter((r) => r.id !== reportId));
         } catch (err) {
             console.error("Error deleting report:", err);
+            alert("Failed to delete report. Please try again.");
         }
     };
 
     const handleUpdate = async () => {
+        const token = localStorage.getItem("token");
+        if (token === 'test-token') {
+            // Show message for test token
+            alert("This is a demo account. Update functionality requires a real account.");
+            return;
+        }
+
         try {
-            const token = localStorage.getItem("token");
             await axios.put(`http://localhost:5050/api/reports/${editingReportId}`, editedReport, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -68,6 +100,7 @@ const MyReports = () => {
             setEditingReportId(null);
         } catch (err) {
             console.error("Error updating report:", err);
+            alert("Failed to update report. Please try again.");
         }
     };
 
@@ -145,67 +178,75 @@ const MyReports = () => {
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Header */}
+            {/* Enhanced Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">My Reports</h1>
-                <p className="text-gray-600">Track and manage your community reports</p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Reports</h1>
+                        <p className="text-gray-600">Track and manage your community reports</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-gray-500">Live updates</span>
+                    </div>
+                </div>
             </div>
 
-            {/* Stats Cards */}
+            {/* Enhanced Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-gray-600 text-sm">Total Reports</p>
-                            <p className="text-2xl font-bold text-gray-800">{reports.length}</p>
+                            <p className="text-gray-600 text-sm font-medium">Total Reports</p>
+                            <p className="text-3xl font-bold text-gray-800">{reports.length}</p>
                         </div>
-                        <div className="text-3xl">
-                            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="text-3xl text-blue-600">
+                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-gray-600 text-sm">Open</p>
-                            <p className="text-2xl font-bold text-gray-800">
+                            <p className="text-gray-600 text-sm font-medium">Open</p>
+                            <p className="text-3xl font-bold text-gray-800">
                                 {reports.filter(r => r.status === 'open').length}
                             </p>
                         </div>
-                        <div className="text-3xl">
-                            <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="text-3xl text-gray-600">
+                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                             </svg>
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-gray-600 text-sm">In Progress</p>
-                            <p className="text-2xl font-bold text-blue-600">
+                            <p className="text-gray-600 text-sm font-medium">In Progress</p>
+                            <p className="text-3xl font-bold text-blue-600">
                                 {reports.filter(r => r.status === 'in progress').length}
                             </p>
                         </div>
-                        <div className="text-3xl">
-                            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="text-3xl text-blue-600">
+                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-gray-600 text-sm">Resolved</p>
-                            <p className="text-2xl font-bold text-green-600">
+                            <p className="text-gray-600 text-sm font-medium">Resolved</p>
+                            <p className="text-3xl font-bold text-green-600">
                                 {reports.filter(r => r.status === 'resolved').length}
                             </p>
                         </div>
-                        <div className="text-3xl">
-                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="text-3xl text-green-600">
+                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
@@ -213,9 +254,9 @@ const MyReports = () => {
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-                <div className="p-4 border-b border-gray-100">
+            {/* Enhanced Filters */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8">
+                <div className="p-6 border-b border-gray-100">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <h2 className="text-xl font-semibold text-gray-800 mb-4 md:mb-0">
                             Your Reports ({filteredReports.length})
@@ -223,7 +264,7 @@ const MyReports = () => {
                         <div className="flex space-x-2">
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2"
+                                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 transition-all duration-300 font-medium flex items-center space-x-2 hover:shadow-sm"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
@@ -235,16 +276,16 @@ const MyReports = () => {
                 </div>
 
                 {showFilters && (
-                    <div className="p-4 border-b border-gray-100 bg-gray-50">
+                    <div className="p-6 border-b border-gray-100 bg-gray-50">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                                 <select
                                     value={filterStatus}
                                     onChange={(e) => setFilterStatus(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
                                 >
-                                    <option value="all">All Status</option>
+                                    <option value="all">All Statuses</option>
                                     <option value="open">Open</option>
                                     <option value="in progress">In Progress</option>
                                     <option value="resolved">Resolved</option>
@@ -255,71 +296,57 @@ const MyReports = () => {
                                 <select
                                     value={filterCategory}
                                     onChange={(e) => setFilterCategory(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
                                 >
                                     <option value="all">All Categories</option>
                                     <option value="infrastructure">Infrastructure</option>
                                     <option value="safety">Safety</option>
                                     <option value="environment">Environment</option>
-                                    <option value="noise">Noise</option>
                                     <option value="other">Other</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 )}
+            </div>
 
-                {/* Reports List */}
-                <div className="divide-y divide-gray-100">
-                    {filteredReports.length === 0 ? (
-                        <div className="p-8 text-center">
-                            <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            {/* Enhanced Report List */}
+            <div className="space-y-6">
+                {filteredReports.length === 0 ? (
+                    <div className="text-center py-12">
+                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
-                            <h3 className="text-lg font-medium text-gray-800 mb-2">No reports found</h3>
-                            <p className="text-gray-600 mb-4">
-                                {reports.length === 0 
-                                    ? "You haven't submitted any reports yet." 
-                                    : "Try adjusting your filters."
-                                }
-                            </p>
-                            <button
-                                onClick={() => navigate('/dashboard/submit')}
-                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Submit Your First Report
-                            </button>
                         </div>
-                    ) : (
-                        filteredReports.map((report) => (
-                            <div key={report.id} className="p-6 hover:bg-gray-50 transition-colors">
-                                {editingReportId === report.id ? (
-                                    /* Edit Mode */
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No reports found</h3>
+                        <p className="text-gray-600 mb-6">Try adjusting your filters or submit your first report.</p>
+                        <Link
+                            to="/dashboard/submit-report"
+                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                        >
+                            Submit Your First Report
+                            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </Link>
+                    </div>
+                ) : (
+                    filteredReports.map((report) => (
+                        <div key={report.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                            {editingReportId === report.id ? (
+                                /* Enhanced Edit Mode */
+                                <div className="p-6">
                                     <div className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                                                <input
-                                                    type="text"
-                                                    name="title"
-                                                    value={editedReport.title}
-                                                    onChange={handleEditChange}
-                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                                <select
-                                                    name="status"
-                                                    value={editedReport.status}
-                                                    onChange={handleEditChange}
-                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                >
-                                                    <option value="open">Open</option>
-                                                    <option value="in progress">In Progress</option>
-                                                    <option value="resolved">Resolved</option>
-                                                </select>
-                                            </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                                            <input
+                                                type="text"
+                                                name="title"
+                                                value={editedReport.title}
+                                                onChange={handleEditChange}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -328,109 +355,117 @@ const MyReports = () => {
                                                 value={editedReport.description}
                                                 onChange={handleEditChange}
                                                 rows={3}
-                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
                                             />
                                         </div>
-                                        <div className="flex justify-end space-x-2">
-                                            <button
-                                                onClick={handleCancelEdit}
-                                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                                            >
-                                                Cancel
-                                            </button>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Severity</label>
+                                                <select
+                                                    name="severity"
+                                                    value={editedReport.severity}
+                                                    onChange={handleEditChange}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                                                >
+                                                    <option value="low">Low</option>
+                                                    <option value="medium">Medium</option>
+                                                    <option value="high">High</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                                <select
+                                                    name="status"
+                                                    value={editedReport.status}
+                                                    onChange={handleEditChange}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                                                >
+                                                    <option value="open">Open</option>
+                                                    <option value="in progress">In Progress</option>
+                                                    <option value="resolved">Resolved</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-3">
                                             <button
                                                 onClick={handleUpdate}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 font-medium"
                                             >
                                                 Save Changes
                                             </button>
+                                            <button
+                                                onClick={handleCancelEdit}
+                                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-all duration-300 font-medium"
+                                            >
+                                                Cancel
+                                            </button>
                                         </div>
                                     </div>
-                                ) : (
-                                    /* View Mode */
+                                </div>
+                            ) : (
+                                /* Enhanced View Mode */
+                                <div className="p-6">
                                     <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
                                         <div className="flex-1">
                                             <div className="flex items-start justify-between mb-4">
-                                                <div className="flex items-center space-x-4">
-                                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
-                                                        {getCategoryIcon(report.category)}
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-xl font-bold text-gray-800 mb-2">{report.title}</h3>
-                                                        <div className="flex items-center space-x-3">
-                                                            {getStatusBadge(report.status)}
-                                                            {getSeverityBadge(report.severity)}
-                                                        </div>
+                                                <div className="flex-1">
+                                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{report.title}</h3>
+                                                    <div className="flex items-center space-x-3 mb-3">
+                                                        {getStatusBadge(report.status)}
+                                                        {getSeverityBadge(report.severity)}
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center space-x-2">
                                                     <button
                                                         onClick={() => handleEditClick(report)}
-                                                        className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
                                                     >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                         </svg>
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(report.id)}
-                                                        className="p-2 text-red-400 hover:text-red-600 transition-colors"
+                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
                                                     >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
                                                     </button>
                                                 </div>
                                             </div>
                                             <p className="text-gray-600 mb-4 leading-relaxed">{report.description}</p>
-                                            <div className="flex flex-wrap items-center space-x-6 text-sm text-gray-500">
-                                                <span className="flex items-center space-x-1">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                            <div className="flex items-center space-x-6 text-sm text-gray-500">
+                                                <div className="flex items-center">
+                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                                     </svg>
-                                                    <span className="font-medium capitalize">{report.category}</span>
-                                                </span>
-                                                {report.address && (
-                                                    <span className="flex items-center space-x-1">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        </svg>
-                                                        <span>{report.address}</span>
-                                                    </span>
-                                                )}
-                                                <span className="flex items-center space-x-1">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    {report.category}
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
-                                                    <span>{new Date(report.created_at).toLocaleDateString()}</span>
-                                                </span>
+                                                    {new Date(report.created_at).toLocaleDateString()}
+                                                </div>
                                             </div>
                                         </div>
-                                        {report.images && report.images.length > 0 && (
-                                            <div className="md:w-32 md:flex-shrink-0">
-                                                <img 
-                                                    src={report.images[0]} 
-                                                    alt="Report" 
-                                                    className="w-full h-24 md:h-32 object-cover rounded-xl shadow-md"
-                                                />
-                                            </div>
-                                        )}
                                     </div>
-                                )}
-                            </div>
-                        ))
-                    )}
-                </div>
+                                </div>
+                            )}
+                        </div>
+                    ))
+                )}
             </div>
 
+            {/* Error Display */}
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <div className="flex items-center">
+                        <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span className="font-medium">{error}</span>
+                        <span className="text-red-800">{error}</span>
                     </div>
                 </div>
             )}
