@@ -1,9 +1,47 @@
 #root {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* Ensure proper scrolling for the app container */
+.app-container {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Fix map container scrolling */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure dashboard content can scroll */
+.dashboard-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

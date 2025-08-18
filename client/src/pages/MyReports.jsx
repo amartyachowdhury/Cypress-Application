@@ -174,7 +174,7 @@ const MyReports = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 dashboard-content">
             {/* Header */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between">

@@ -163,7 +163,7 @@ const DashboardMap = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 dashboard-content">
             {/* Welcome Section */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <div className="text-center mb-6">
@@ -340,7 +340,7 @@ const DashboardMap = () => {
                             center={defaultCenter}
                             zoom={13}
                             className="w-full h-full"
-                            style={{ minHeight: '400px' }}
+                            style={{ height: '100%', minHeight: '400px' }}
                         >
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -449,6 +449,24 @@ const DashboardMap = () => {
                     {error}
                 </div>
             )}
+
+            {/* Test content to ensure scrolling works */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Community Guidelines</h3>
+                <div className="space-y-4 text-gray-600">
+                    <p>Thank you for using Cypress Community Hub! Here are some guidelines to help make our community better:</p>
+                    <ul className="list-disc list-inside space-y-2 ml-4">
+                        <li>Be specific and detailed when describing issues</li>
+                        <li>Include clear photos when possible</li>
+                        <li>Provide accurate location information</li>
+                        <li>Be respectful and constructive in your reports</li>
+                        <li>Follow up on the status of your reports</li>
+                    </ul>
+                    <p className="text-sm text-gray-500 mt-4">
+                        Together, we can make our community a better place for everyone! 🌟
+                    </p>
+                </div>
+            </div>
         </div>
     );
 };
