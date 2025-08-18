@@ -59,7 +59,9 @@ export default function DashboardLayout({ children }) {
                             <div className="flex items-center space-x-4">
                                 <div className="relative">
                                     <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:rotate-3">
-                                        <span className="text-white font-bold text-xl">🌳</span>
+                                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                                        </svg>
                                     </div>
                                     <div className="absolute -inset-1 bg-gradient-to-br from-blue-400 to-purple-400 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
                                 </div>
@@ -80,7 +82,9 @@ export default function DashboardLayout({ children }) {
                                 to="/dashboard" 
                                 className="relative text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium flex items-center space-x-2 group"
                             >
-                                <span className="transform transition-transform duration-300 group-hover:scale-110">🏠</span>
+                                <svg className="w-5 h-5 transform transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
                                 <span>Home</span>
                                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300 group-hover:w-full"></div>
                             </Link>
@@ -88,7 +92,9 @@ export default function DashboardLayout({ children }) {
                                 to="/dashboard/submit" 
                                 className="relative text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium flex items-center space-x-2 group"
                             >
-                                <span className="transform transition-transform duration-300 group-hover:scale-110">📝</span>
+                                <svg className="w-5 h-5 transform transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
                                 <span>Submit Report</span>
                                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300 group-hover:w-full"></div>
                             </Link>
@@ -96,14 +102,16 @@ export default function DashboardLayout({ children }) {
                                 to="/dashboard/my-reports" 
                                 className="relative text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium flex items-center space-x-2 group"
                             >
-                                <span className="transform transition-transform duration-300 group-hover:scale-110">📋</span>
+                                <svg className="w-5 h-5 transform transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
                                 <span>My Reports</span>
                                 <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300 group-hover:w-full"></div>
                             </Link>
                             <div className="flex items-center space-x-4">
                                 <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full border border-blue-100">
                                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                    <span className="text-sm text-gray-600">👋 {userName}</span>
+                                    <span className="text-sm text-gray-600">Welcome, {userName}</span>
                                 </div>
                                 <button
                                     onClick={handleLogout}
@@ -135,7 +143,9 @@ export default function DashboardLayout({ children }) {
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-blue-50 transform hover:scale-105"
                                 >
-                                    <span className="text-xl">🏠</span>
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
                                     <span>Home</span>
                                 </Link>
                                 <Link 
@@ -143,7 +153,9 @@ export default function DashboardLayout({ children }) {
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-blue-50 transform hover:scale-105"
                                 >
-                                    <span className="text-xl">📝</span>
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
                                     <span>Submit Report</span>
                                 </Link>
                                 <Link 
@@ -151,13 +163,15 @@ export default function DashboardLayout({ children }) {
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-blue-50 transform hover:scale-105"
                                 >
-                                    <span className="text-xl">📋</span>
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
                                     <span>My Reports</span>
                                 </Link>
                                 <div className="px-4 py-3 border-t border-gray-200/50 pt-4">
                                     <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full border border-blue-100 mb-3">
                                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                        <span className="text-sm text-gray-600">👋 {userName}</span>
+                                        <span className="text-sm text-gray-600">Welcome, {userName}</span>
                                     </div>
                                     <button
                                         onClick={handleLogout}

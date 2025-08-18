@@ -183,7 +183,7 @@ const DashboardMap = () => {
                 
                 <div className="relative z-10 text-center mb-8">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-                        Welcome to Your Community Hub! 🌳
+                        Welcome to Your Community Hub
                     </h1>
                     <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed">
                         Stay connected with your community. View reports, submit new issues, and track progress on local improvements that make our neighborhood better for everyone.
@@ -195,28 +195,44 @@ const DashboardMap = () => {
                     <QuickActionCard
                         title="Submit Report"
                         description="Report a new community issue that needs attention"
-                        icon="📝"
+                        icon={
+                            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        }
                         onClick={() => navigate('/dashboard/submit')}
                         color="blue"
                     />
                     <QuickActionCard
                         title="My Reports"
                         description="View and manage your submitted reports"
-                        icon="📋"
+                        icon={
+                            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        }
                         onClick={() => navigate('/dashboard/my-reports')}
                         color="green"
                     />
                     <QuickActionCard
                         title="Community Stats"
                         description="See community activity and engagement"
-                        icon="📊"
+                        icon={
+                            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        }
                         onClick={() => setShowMap(!showMap)}
                         color="purple"
                     />
                     <QuickActionCard
                         title="Recent Activity"
                         description="Latest community updates and changes"
-                        icon="🔄"
+                        icon={
+                            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        }
                         onClick={() => setShowFilters(!showFilters)}
                         color="orange"
                     />
@@ -227,19 +243,31 @@ const DashboardMap = () => {
                     <StatsCard
                         title="Total Reports"
                         value={reports.length}
-                        icon="📊"
+                        icon={
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        }
                         gradient="from-blue-500 to-blue-600"
                     />
                     <StatsCard
                         title="Resolved"
                         value={reports.filter(r => r.status === 'resolved').length}
-                        icon="✅"
+                        icon={
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                        }
                         gradient="from-green-500 to-green-600"
                     />
                     <StatsCard
                         title="In Progress"
                         value={reports.filter(r => r.status === 'in progress').length}
-                        icon="🔄"
+                        icon={
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        }
                         gradient="from-orange-500 to-orange-600"
                     />
                 </div>
@@ -256,7 +284,10 @@ const DashboardMap = () => {
                                 : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white shadow-md'
                         }`}
                     >
-                        🗺️ Map View
+                        <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3" />
+                        </svg>
+                        Map View
                     </button>
                     <button
                         onClick={() => setShowMap(false)}
@@ -266,7 +297,10 @@ const DashboardMap = () => {
                                 : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white shadow-md'
                         }`}
                     >
-                        📋 List View
+                        <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        List View
                     </button>
                 </div>
 
@@ -274,7 +308,10 @@ const DashboardMap = () => {
                     onClick={() => setShowFilters(!showFilters)}
                     className="px-6 py-3 bg-white/80 backdrop-blur-sm text-gray-600 rounded-xl hover:bg-white transition-all duration-300 font-semibold shadow-md transform hover:scale-105"
                 >
-                    🔍 Filters
+                    <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z" />
+                    </svg>
+                    Filters
                 </button>
             </div>
 
@@ -373,7 +410,11 @@ const DashboardMap = () => {
                                                 </div>
                                                 {report.address && (
                                                     <div className="text-sm text-gray-500">
-                                                        📍 {report.address}
+                                                        <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                        {report.address}
                                                     </div>
                                                 )}
                                                 {report.images && report.images.length > 0 && (
@@ -405,7 +446,9 @@ const DashboardMap = () => {
                     <div className="divide-y divide-gray-200/50">
                         {filteredReports.length === 0 ? (
                             <div className="p-12 text-center">
-                                <div className="text-6xl mb-6">📭</div>
+                                <svg className="w-16 h-16 mx-auto mb-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                </svg>
                                 <h3 className="text-xl font-semibold text-gray-800 mb-3">No reports found</h3>
                                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                                     {reports.length === 0 
@@ -428,7 +471,9 @@ const DashboardMap = () => {
                                             <div className="flex items-start justify-between mb-4">
                                                 <div className="flex items-center space-x-4">
                                                     <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
-                                                        <span className="text-2xl">📋</span>
+                                                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                        </svg>
                                                     </div>
                                                     <div>
                                                         <h3 className="text-xl font-bold text-gray-800 mb-2">{report.title}</h3>
@@ -442,17 +487,24 @@ const DashboardMap = () => {
                                             <p className="text-gray-600 mb-4 leading-relaxed">{report.description}</p>
                                             <div className="flex flex-wrap items-center space-x-6 text-sm text-gray-500">
                                                 <span className="flex items-center space-x-1">
-                                                    <span>📂</span>
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                                    </svg>
                                                     <span className="font-medium capitalize">{report.category}</span>
                                                 </span>
                                                 {report.address && (
                                                     <span className="flex items-center space-x-1">
-                                                        <span>📍</span>
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
                                                         <span>{report.address}</span>
                                                     </span>
                                                 )}
                                                 <span className="flex items-center space-x-1">
-                                                    <span>📅</span>
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
                                                     <span>{new Date(report.created_at).toLocaleDateString()}</span>
                                                 </span>
                                             </div>
@@ -480,7 +532,7 @@ const DashboardMap = () => {
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl"></div>
                 
                 <div className="relative z-10">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Community Guidelines 🌟</h3>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Community Guidelines</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-4">
                             <p className="text-gray-700 leading-relaxed">
@@ -518,7 +570,7 @@ const DashboardMap = () => {
                             </ul>
                             <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-white/50">
                                 <p className="text-sm text-gray-600 text-center font-medium">
-                                    Together, we can make our community a better place for everyone! 🌟
+                                    Together, we can make our community a better place for everyone!
                                 </p>
                             </div>
                         </div>
@@ -529,7 +581,9 @@ const DashboardMap = () => {
             {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 p-6 rounded-2xl shadow-lg">
                     <div className="flex items-center space-x-3">
-                        <span className="text-2xl">⚠️</span>
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
                         <span className="font-medium">{error}</span>
                     </div>
                 </div>

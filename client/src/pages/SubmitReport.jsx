@@ -142,11 +142,33 @@ function SubmitReport() {
     };
 
     const steps = [
-        { number: 1, title: "Basic Info", description: "Title and description", icon: "📝" },
-        { number: 2, title: "Details", description: "Category and severity", icon: "⚙️" },
-        { number: 3, title: "Location", description: "Set location", icon: "📍" },
-        { number: 4, title: "Images", description: "Add photos (optional)", icon: "📸" },
-        { number: 5, title: "Review", description: "Submit report", icon: "✅" }
+        { number: 1, title: "Basic Info", description: "Title and description", icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+        )},
+        { number: 2, title: "Details", description: "Category and severity", icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        )},
+        { number: 3, title: "Location", description: "Set location", icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        )},
+        { number: 4, title: "Images", description: "Add photos (optional)", icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+        )},
+        { number: 5, title: "Review", description: "Submit report", icon: (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+        )}
     ];
 
     if (showSuccess) {
@@ -159,7 +181,11 @@ function SubmitReport() {
                 </div>
                 
                 <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-12 shadow-2xl text-center max-w-md mx-4 relative z-10 transform animate-in zoom-in-95 duration-500">
-                    <div className="text-8xl mb-6 animate-bounce">🎉</div>
+                    <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                        <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
                     <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-4">
                         Report Submitted!
                     </h2>
@@ -190,7 +216,7 @@ function SubmitReport() {
                 {/* Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-                        Submit a Community Report 📝
+                        Submit a Community Report
                     </h1>
                     <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
                         Help make our community better by reporting issues that need attention. Your contribution makes a real difference!
@@ -291,11 +317,11 @@ function SubmitReport() {
                                             onChange={(e) => setCategory(e.target.value)}
                                             className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
                                         >
-                                            <option value="infrastructure">🏗️ Infrastructure</option>
-                                            <option value="safety">🛡️ Safety</option>
-                                            <option value="environment">🌱 Environment</option>
-                                            <option value="noise">🔊 Noise</option>
-                                            <option value="other">📋 Other</option>
+                                            <option value="infrastructure">Infrastructure</option>
+                                            <option value="safety">Safety</option>
+                                            <option value="environment">Environment</option>
+                                            <option value="noise">Noise</option>
+                                            <option value="other">Other</option>
                                         </select>
                                     </div>
                                     <div>
@@ -307,9 +333,9 @@ function SubmitReport() {
                                             onChange={(e) => setSeverity(e.target.value)}
                                             className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
                                         >
-                                            <option value="low">🟢 Low - Minor issue</option>
-                                            <option value="medium">🟡 Medium - Moderate concern</option>
-                                            <option value="high">🔴 High - Urgent attention needed</option>
+                                            <option value="low">Low - Minor issue</option>
+                                            <option value="medium">Medium - Moderate concern</option>
+                                            <option value="high">High - Urgent attention needed</option>
                                         </select>
                                     </div>
                                 </div>
@@ -360,7 +386,9 @@ function SubmitReport() {
                                 {locationError && (
                                     <div className="p-6 bg-red-50 border-2 border-red-200 text-red-600 rounded-2xl">
                                         <div className="flex items-center space-x-3">
-                                            <span className="text-2xl">⚠️</span>
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                            </svg>
                                             <span className="font-medium">{locationError}</span>
                                         </div>
                                     </div>
@@ -373,21 +401,25 @@ function SubmitReport() {
                                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                                                 <div className="absolute inset-0 rounded-full border-2 border-blue-200 animate-ping opacity-20"></div>
                                             </div>
-                                            <span className="text-blue-700 text-lg font-medium">📡 Detecting your location...</span>
+                                            <span className="text-blue-700 text-lg font-medium">Detecting your location...</span>
                                         </div>
                                     ) : coordinates ? (
                                         <div className="flex items-center space-x-4">
-                                            <span className="text-3xl">✅</span>
+                                            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
                                             <div>
                                                 <p className="text-blue-700 font-semibold text-lg">Location set successfully!</p>
                                                 <p className="text-blue-600 text-base">
-                                                    📍 {coordinates[1].toFixed(4)}, {coordinates[0].toFixed(4)}
+                                                    {coordinates[1].toFixed(4)}, {coordinates[0].toFixed(4)}
                                                 </p>
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="flex items-center space-x-4">
-                                            <span className="text-3xl">⚠️</span>
+                                            <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                            </svg>
                                             <span className="text-blue-700 text-lg">Failed to get your location. Please enter an address above.</span>
                                         </div>
                                     )}
@@ -433,7 +465,11 @@ function SubmitReport() {
                                             id="image-upload"
                                         />
                                         <label htmlFor="image-upload" className="cursor-pointer">
-                                            <div className="text-4xl mb-4">📸</div>
+                                            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
                                             <p className="text-lg font-medium text-gray-700 mb-2">Click to upload images</p>
                                             <p className="text-gray-500">or drag and drop</p>
                                         </label>
@@ -542,7 +578,9 @@ function SubmitReport() {
                                             </>
                                         ) : (
                                             <>
-                                                <span>🚀</span>
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
                                                 <span>Submit Report</span>
                                             </>
                                         )}
