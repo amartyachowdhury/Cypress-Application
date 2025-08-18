@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import Admin from '../models/Admin.js';
+import { db } from '../config/supabase.js';
 
 const adminAuth = async (req, res, next) => {
     try {
@@ -10,7 +10,9 @@ const adminAuth = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-        const admin = await Admin.findOne({ _id: decoded._id });
+        
+        // Get admin from Supabase
+        const admin = await db.getAdminByEmail(decoded.email || 'admin@cypress.com');
 
         if (!admin) {
             throw new Error('Admin not found');

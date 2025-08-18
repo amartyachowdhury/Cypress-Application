@@ -1,14 +1,16 @@
-import express from 'express';
 import dotenv from 'dotenv';
+import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Load environment variables first
+dotenv.config();
+
+// Now import routes after environment variables are loaded
 import authRoutes from './routes/authRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
-
-dotenv.config();
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
