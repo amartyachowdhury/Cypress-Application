@@ -1,63 +1,106 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import http from "http";
+import { Server as SocketIOServer } from "socket.io";
 import { fileURLToPath } from 'url';
 
 // Load environment variables first
 dotenv.config();
 
-// Now import routes after environment variables are loaded
-import authRoutes from './routes/authRoutes.js';
-import reportRoutes from './routes/reportRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
-
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+    cors: {
+        origin: "http://localhost:3002",
+        methods: ["GET", "POST"]
+    }
+});
+
+// Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "uploads")));
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Store connected users
+const connectedUsers = new Map();
 
-// Test Supabase connection
-app.get('/test-db', async (req, res) => {
+// Socket.IO connection handling
+io.on("connection", (socket) => {
+    console.log("User connected:", socket.id);
+
+    // Handle user authentication
+    socket.on("authenticate", (userId) => {
+        connectedUsers.set(userId, socket.id);
+        console.log(`User ${userId} authenticated with socket ${socket.id}`);
+    });
+
+    // Handle user disconnection
+    socket.on("disconnect", () => {
+        // Remove user from connected users
+        for (const [userId, socketId] of connectedUsers.entries()) {
+            if (socketId === socket.id) {
+                connectedUsers.delete(userId);
+                console.log(`User ${userId} disconnected`);
+                break;
+            }
+        }
+    });
+});
+
+// Notification helper function
+const sendNotification = (userId, notification) => {
+    const socketId = connectedUsers.get(userId);
+    if (socketId) {
+        io.to(socketId).emit("notification", notification);
+        console.log(`Notification sent to user ${userId}:`, notification);
+    }
+};
+
+// Make notification function available to routes
+app.locals.sendNotification = sendNotification;
+
+// Routes
+app.use("/api/auth", (await import("./routes/authRoutes.js")).default);
+app.use("/api/reports", (await import("./routes/reportRoutes.js")).default);
+app.use("/api/admin", (await import("./routes/adminRoutes.js")).default);
+
+// Test database connection
+app.get("/test-db", async (req, res) => {
     try {
-        const { db } = await import('./config/supabase.js');
-        const stats = await db.getStats();
-        res.status(200).json({ 
-            message: 'Supabase connection successful!', 
-            stats 
-        });
+        const { db } = await import("./config/supabase.js");
+        await db.getStats();
+        res.json({ message: "Database connection successful!" });
     } catch (error) {
-        console.error('Database connection error:', error);
-        res.status(500).json({ 
-            message: 'Database connection failed', 
-            error: error.message 
-        });
+        console.error("Database connection failed:", error);
+        res.status(500).json({ error: "Database connection failed" });
     }
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/admin', adminRoutes);
-
-// Health check
-app.get('/', (req, res) => {
-    res.status(200).json({ message: 'Cypress backend is running with Supabase...' });
-});
-
-// 404 fallback
-app.use((req, res) => {
-    res.status(404).json({ message: `No route for ${req.method} ${req.url}` });
+// Test notification endpoint
+app.post("/api/test-notification", (req, res) => {
+    const { userId, message } = req.body;
+    if (userId && message) {
+        sendNotification(userId, {
+            type: "info",
+            title: "Test Notification",
+            message: message,
+            timestamp: new Date().toISOString()
+        });
+        res.json({ success: true, message: "Test notification sent" });
+    } else {
+        res.status(400).json({ error: "userId and message are required" });
+    }
 });
 
 const PORT = process.env.PORT || 5050;
-app.listen(PORT, () => {
+
+server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 Using Supabase as database`);
+    console.log(`📡 WebSocket server ready for real-time notifications`);
 });

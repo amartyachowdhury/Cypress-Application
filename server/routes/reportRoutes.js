@@ -2,10 +2,15 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import db from '../config/supabase.js';
-import { verifyToken } from '../middleware/verifyToken.js';
+import { db } from '../config/supabase.js';
+import verifyToken from '../middleware/verifyToken.js';
+import { emailNotifications } from '../utils/emailService.js';
 
 const router = express.Router();
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure multer for image uploads
 const storage = multer.diskStorage({
@@ -32,6 +37,13 @@ const upload = multer({
         }
     }
 });
+
+// Helper function to send notifications
+const sendNotification = (req, userId, notification) => {
+    if (req.app.locals.sendNotification) {
+        req.app.locals.sendNotification(userId, notification);
+    }
+};
 
 // ✅ Upload images
 router.post('/upload-images', verifyToken, upload.array('images', 5), async (req, res) => {
@@ -76,6 +88,33 @@ router.post('/', verifyToken, async (req, res) => {
         };
 
         const report = await db.createReport(reportData);
+
+        // Get user info for email notification
+        const user = await db.getUserById(req.userId);
+
+        // Send real-time notification
+        sendNotification(req, req.userId, {
+            type: "success",
+            title: "Report Submitted Successfully",
+            message: `Your report "${title}" has been submitted and is now under review.`,
+            timestamp: new Date().toISOString(),
+            reportId: report.id
+        });
+
+        // Send email notification
+        if (user && user.email) {
+            try {
+                await emailNotifications.reportSubmitted(
+                    user.email, 
+                    user.name || 'Community Member', 
+                    title
+                );
+            } catch (emailError) {
+                console.error('Email notification failed:', emailError);
+                // Don't fail the request if email fails
+            }
+        }
+
         res.status(201).json({ message: 'Report submitted successfully!', report });
     } catch (err) {
         console.error('❌ Error submitting report:', err);
@@ -83,113 +122,198 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 
-// 📄 View reports submitted by the authenticated user
+// ✅ Get user's reports
 router.get('/mine', verifyToken, async (req, res) => {
     try {
-        const { reports } = await db.getReports({ createdBy: req.userId });
+        const reports = await db.getReportsByUser(req.userId);
         res.status(200).json(reports);
     } catch (err) {
         console.error('❌ Error fetching user reports:', err);
-        res.status(500).json({ message: 'Failed to load your reports' });
+        res.status(500).json({ message: 'Error fetching reports' });
     }
 });
 
-// 📊 Get all reports (for admin)
+// ✅ Get all reports (for admin)
 router.get('/all', verifyToken, async (req, res) => {
     try {
-        const { status, category, severity, page = 1, limit = 10 } = req.query;
-        
-        const filters = {};
-        if (status && status !== 'all') filters.status = status;
-        if (category && category !== 'all') filters.category = category;
-        if (severity && severity !== 'all') filters.severity = severity;
-        if (page && limit) {
-            filters.page = parseInt(page);
-            filters.limit = parseInt(limit);
-        }
-
-        const { reports, count } = await db.getReports(filters);
-        
-        res.status(200).json({
-            reports,
-            totalPages: Math.ceil(count / (limit || 10)),
-            currentPage: parseInt(page),
-            total: count
-        });
+        const reports = await db.getAllReports();
+        res.status(200).json(reports);
     } catch (err) {
         console.error('❌ Error fetching all reports:', err);
-        res.status(500).json({ message: 'Failed to load reports' });
+        res.status(500).json({ message: 'Error fetching reports' });
     }
 });
 
-// 📊 Filter reports by status
-router.get('/status/:status', verifyToken, async (req, res) => {
+// ✅ Get a specific report
+router.get('/:id', verifyToken, async (req, res) => {
     try {
-        const { reports } = await db.getReports({ status: req.params.status });
-        res.status(200).json(reports);
+        const report = await db.getReportById(req.params.id);
+        if (!report) {
+            return res.status(404).json({ message: 'Report not found' });
+        }
+        res.status(200).json(report);
     } catch (err) {
-        console.error('❌ Error fetching reports by status:', err);
-        res.status(500).json({ message: 'Failed to load reports by status' });
+        console.error('❌ Error fetching report:', err);
+        res.status(500).json({ message: 'Error fetching report' });
     }
 });
 
-// 📍 Get reports by location (within radius)
-router.get('/nearby', verifyToken, async (req, res) => {
-    try {
-        const { longitude, latitude, radius = 5000 } = req.query; // radius in meters
-        
-        const reports = await db.getNearbyReports(
-            parseFloat(latitude), 
-            parseFloat(longitude), 
-            parseInt(radius)
-        );
-
-        res.status(200).json(reports);
-    } catch (err) {
-        console.error('❌ Error fetching nearby reports:', err);
-        res.status(500).json({ message: 'Failed to load nearby reports' });
-    }
-});
-
-// ✏️ Edit a report
+// ✅ Update a report
 router.put('/:id', verifyToken, async (req, res) => {
     try {
-        // First check if the report belongs to the user
         const existingReport = await db.getReportById(req.params.id);
         if (!existingReport) {
             return res.status(404).json({ message: 'Report not found' });
         }
-        
+
+        // Check if user owns the report
         if (existingReport.created_by !== req.userId) {
             return res.status(403).json({ message: 'Not authorized to update this report' });
         }
 
         const updatedReport = await db.updateReport(req.params.id, req.body);
+
+        // Send notification if status changed
+        if (req.body.status && req.body.status !== existingReport.status) {
+            const statusMessages = {
+                'open': 'Your report has been opened for review',
+                'in progress': 'Work has begun on your report',
+                'resolved': 'Your report has been resolved!'
+            };
+
+            sendNotification(req, req.userId, {
+                type: "info",
+                title: "Report Status Updated",
+                message: statusMessages[req.body.status] || `Your report status has been updated to ${req.body.status}`,
+                timestamp: new Date().toISOString(),
+                reportId: req.params.id,
+                newStatus: req.body.status
+            });
+
+            // Send email notification for status changes
+            const user = await db.getUserById(req.userId);
+            if (user && user.email) {
+                try {
+                    await emailNotifications.statusUpdated(
+                        user.email,
+                        user.name || 'Community Member',
+                        existingReport.title,
+                        req.body.status,
+                        req.body.admin_notes
+                    );
+                } catch (emailError) {
+                    console.error('Email notification failed:', emailError);
+                }
+            }
+        }
+
         res.status(200).json({ message: 'Report updated', report: updatedReport });
     } catch (err) {
         console.error('❌ Error updating report:', err);
-        res.status(500).json({ message: 'Failed to update report' });
+        res.status(500).json({ message: 'Error updating report' });
     }
 });
 
-// ❌ Delete a report
+// ✅ Delete a report
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
-        // First check if the report belongs to the user
         const existingReport = await db.getReportById(req.params.id);
         if (!existingReport) {
             return res.status(404).json({ message: 'Report not found' });
         }
-        
+
+        // Check if user owns the report
         if (existingReport.created_by !== req.userId) {
             return res.status(403).json({ message: 'Not authorized to delete this report' });
         }
 
         await db.deleteReport(req.params.id);
+
+        // Send notification to user
+        sendNotification(req, req.userId, {
+            type: "warning",
+            title: "Report Deleted",
+            message: `Your report "${existingReport.title}" has been deleted.`,
+            timestamp: new Date().toISOString(),
+            reportId: req.params.id
+        });
+
         res.status(200).json({ message: 'Report deleted' });
     } catch (err) {
         console.error('❌ Error deleting report:', err);
-        res.status(500).json({ message: 'Failed to delete report' });
+        res.status(500).json({ message: 'Error deleting report' });
+    }
+});
+
+// Admin: Update report status
+router.patch('/:id/status', verifyToken, async (req, res) => {
+    try {
+        const { status, adminNotes } = req.body;
+        const reportId = req.params.id;
+
+        // Check if user is admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "Admin access required" });
+        }
+
+        const originalReport = await db.getReportById(reportId);
+        if (!originalReport) {
+            return res.status(404).json({ error: "Report not found" });
+        }
+
+        const updatedReport = await db.updateReport(reportId, {
+            status,
+            admin_notes: adminNotes,
+            updated_at: new Date().toISOString()
+        });
+
+        // Get user info for email notification
+        const user = await db.getUserById(originalReport.created_by);
+
+        // Send real-time notification to report owner
+        const statusMessages = {
+            'open': 'Your report has been opened for review',
+            'in progress': 'Work has begun on your report',
+            'resolved': 'Your report has been resolved!'
+        };
+
+        sendNotification(req, originalReport.created_by, {
+            type: "info",
+            title: "Report Status Updated",
+            message: statusMessages[status] || `Your report status has been updated to ${status}`,
+            timestamp: new Date().toISOString(),
+            reportId: reportId,
+            newStatus: status,
+            adminNotes: adminNotes
+        });
+
+        // Send email notification
+        if (user && user.email) {
+            try {
+                if (status === 'resolved') {
+                    await emailNotifications.reportResolved(
+                        user.email,
+                        user.name || 'Community Member',
+                        originalReport.title
+                    );
+                } else {
+                    await emailNotifications.statusUpdated(
+                        user.email,
+                        user.name || 'Community Member',
+                        originalReport.title,
+                        status,
+                        adminNotes
+                    );
+                }
+            } catch (emailError) {
+                console.error('Email notification failed:', emailError);
+            }
+        }
+
+        res.status(200).json(updatedReport);
+    } catch (error) {
+        console.error("Error updating report status:", error);
+        res.status(500).json({ error: "Failed to update report status" });
     }
 });
 
