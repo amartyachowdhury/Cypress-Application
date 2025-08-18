@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Report from '../models/Report.js';
+import db from '../config/supabase.js';
 import { verifyToken } from '../middleware/verifyToken.js';
 
 const router = express.Router();
@@ -58,8 +58,24 @@ router.post('/upload-images', verifyToken, upload.array('images', 5), async (req
 // ✅ Submit a report
 router.post('/', verifyToken, async (req, res) => {
     try {
-        const report = new Report({ ...req.body, createdBy: req.userId });
-        await report.save();
+        const { title, description, severity, category, address, images, location } = req.body;
+        
+        // Convert location coordinates to PostGIS format
+        const locationData = location && location.coordinates ? 
+            `POINT(${location.coordinates[0]} ${location.coordinates[1]})` : null;
+
+        const reportData = {
+            title,
+            description,
+            severity,
+            category,
+            address,
+            images: images || [],
+            location: locationData,
+            created_by: req.userId
+        };
+
+        const report = await db.createReport(reportData);
         res.status(201).json({ message: 'Report submitted successfully!', report });
     } catch (err) {
         console.error('❌ Error submitting report:', err);
@@ -70,9 +86,7 @@ router.post('/', verifyToken, async (req, res) => {
 // 📄 View reports submitted by the authenticated user
 router.get('/mine', verifyToken, async (req, res) => {
     try {
-        const reports = await Report.find({ createdBy: req.userId })
-            .populate('createdBy', 'name email')
-            .sort({ createdAt: -1 });
+        const { reports } = await db.getReports({ createdBy: req.userId });
         res.status(200).json(reports);
     } catch (err) {
         console.error('❌ Error fetching user reports:', err);
@@ -85,24 +99,22 @@ router.get('/all', verifyToken, async (req, res) => {
     try {
         const { status, category, severity, page = 1, limit = 10 } = req.query;
         
-        let query = {};
-        if (status && status !== 'all') query.status = status;
-        if (category && category !== 'all') query.category = category;
-        if (severity && severity !== 'all') query.severity = severity;
+        const filters = {};
+        if (status && status !== 'all') filters.status = status;
+        if (category && category !== 'all') filters.category = category;
+        if (severity && severity !== 'all') filters.severity = severity;
+        if (page && limit) {
+            filters.page = parseInt(page);
+            filters.limit = parseInt(limit);
+        }
 
-        const reports = await Report.find(query)
-            .populate('createdBy', 'name email')
-            .sort({ createdAt: -1 })
-            .limit(limit * 1)
-            .skip((page - 1) * limit);
-
-        const total = await Report.countDocuments(query);
-
+        const { reports, count } = await db.getReports(filters);
+        
         res.status(200).json({
             reports,
-            totalPages: Math.ceil(total / limit),
-            currentPage: page,
-            total
+            totalPages: Math.ceil(count / (limit || 10)),
+            currentPage: parseInt(page),
+            total: count
         });
     } catch (err) {
         console.error('❌ Error fetching all reports:', err);
@@ -113,9 +125,7 @@ router.get('/all', verifyToken, async (req, res) => {
 // 📊 Filter reports by status
 router.get('/status/:status', verifyToken, async (req, res) => {
     try {
-        const reports = await Report.find({ status: req.params.status })
-            .populate('createdBy', 'name email')
-            .sort({ createdAt: -1 });
+        const { reports } = await db.getReports({ status: req.params.status });
         res.status(200).json(reports);
     } catch (err) {
         console.error('❌ Error fetching reports by status:', err);
@@ -128,17 +138,11 @@ router.get('/nearby', verifyToken, async (req, res) => {
     try {
         const { longitude, latitude, radius = 5000 } = req.query; // radius in meters
         
-        const reports = await Report.find({
-            location: {
-                $near: {
-                    $geometry: {
-                        type: 'Point',
-                        coordinates: [parseFloat(longitude), parseFloat(latitude)]
-                    },
-                    $maxDistance: parseInt(radius)
-                }
-            }
-        }).populate('createdBy', 'name email');
+        const reports = await db.getNearbyReports(
+            parseFloat(latitude), 
+            parseFloat(longitude), 
+            parseInt(radius)
+        );
 
         res.status(200).json(reports);
     } catch (err) {
@@ -150,14 +154,17 @@ router.get('/nearby', verifyToken, async (req, res) => {
 // ✏️ Edit a report
 router.put('/:id', verifyToken, async (req, res) => {
     try {
-        const updatedReport = await Report.findOneAndUpdate(
-            { _id: req.params.id, createdBy: req.userId },
-            req.body,
-            { new: true }
-        );
-        if (!updatedReport) {
+        // First check if the report belongs to the user
+        const existingReport = await db.getReportById(req.params.id);
+        if (!existingReport) {
+            return res.status(404).json({ message: 'Report not found' });
+        }
+        
+        if (existingReport.created_by !== req.userId) {
             return res.status(403).json({ message: 'Not authorized to update this report' });
         }
+
+        const updatedReport = await db.updateReport(req.params.id, req.body);
         res.status(200).json({ message: 'Report updated', report: updatedReport });
     } catch (err) {
         console.error('❌ Error updating report:', err);
@@ -168,13 +175,17 @@ router.put('/:id', verifyToken, async (req, res) => {
 // ❌ Delete a report
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
-        const deletedReport = await Report.findOneAndDelete({
-            _id: req.params.id,
-            createdBy: req.userId,
-        });
-        if (!deletedReport) {
+        // First check if the report belongs to the user
+        const existingReport = await db.getReportById(req.params.id);
+        if (!existingReport) {
+            return res.status(404).json({ message: 'Report not found' });
+        }
+        
+        if (existingReport.created_by !== req.userId) {
             return res.status(403).json({ message: 'Not authorized to delete this report' });
         }
+
+        await db.deleteReport(req.params.id);
         res.status(200).json({ message: 'Report deleted' });
     } catch (err) {
         console.error('❌ Error deleting report:', err);

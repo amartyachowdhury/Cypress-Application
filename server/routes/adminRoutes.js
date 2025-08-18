@@ -3,8 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import adminAuth from '../middleware/adminAuth.js';
-import Report from '../models/Report.js';
-import Admin from '../models/Admin.js';
+import db from '../config/supabase.js';
 
 dotenv.config();
 
@@ -13,7 +12,7 @@ const router = express.Router();
 // Generate JWT Token
 const generateToken = (admin) => {
     return jwt.sign(
-        { _id: admin._id.toString() },
+        { _id: admin.id.toString() },
         process.env.JWT_SECRET || 'your_jwt_secret',
         { expiresIn: '24h' }
     );
@@ -25,12 +24,12 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
         console.log('Login attempt for:', email);
 
-        const admin = await Admin.findOne({ email });
+        const admin = await db.getAdminByEmail(email);
         if (!admin) {
             return res.status(401).json({ message: 'Invalid admin credentials' });
         }
 
-        const isMatch = await admin.comparePassword(password);
+        const isMatch = await bcrypt.compare(password, admin.password_hash);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid admin credentials' });
         }
@@ -39,7 +38,7 @@ router.post('/login', async (req, res) => {
         res.json({
             token,
             admin: {
-                id: admin._id,
+                id: admin.id,
                 email: admin.email,
                 name: admin.name
             }
@@ -55,7 +54,7 @@ router.get('/verify', adminAuth, async (req, res) => {
     try {
         res.json({ 
             admin: {
-                id: req.admin._id,
+                id: req.admin.id,
                 email: req.admin.email,
                 name: req.admin.name
             }
@@ -71,24 +70,22 @@ router.get('/reports', adminAuth, async (req, res) => {
     try {
         const { status, category, severity, page = 1, limit = 10 } = req.query;
         
-        let query = {};
-        if (status && status !== 'all') query.status = status;
-        if (category && category !== 'all') query.category = category;
-        if (severity && severity !== 'all') query.severity = severity;
+        const filters = {};
+        if (status && status !== 'all') filters.status = status;
+        if (category && category !== 'all') filters.category = category;
+        if (severity && severity !== 'all') filters.severity = severity;
+        if (page && limit) {
+            filters.page = parseInt(page);
+            filters.limit = parseInt(limit);
+        }
 
-        const reports = await Report.find(query)
-            .populate('createdBy', 'name email')
-            .sort({ createdAt: -1 })
-            .limit(limit * 1)
-            .skip((page - 1) * limit);
-
-        const total = await Report.countDocuments(query);
-
+        const { reports, count } = await db.getReports(filters);
+        
         res.status(200).json({
             reports,
-            totalPages: Math.ceil(total / limit),
+            totalPages: Math.ceil(count / (limit || 10)),
             currentPage: parseInt(page),
-            total
+            total: count
         });
     } catch (err) {
         console.error('❌ Error fetching reports:', err);
@@ -99,19 +96,8 @@ router.get('/reports', adminAuth, async (req, res) => {
 // 📈 Get dashboard statistics
 router.get('/stats', adminAuth, async (req, res) => {
     try {
-        const [total, open, inProgress, resolved] = await Promise.all([
-            Report.countDocuments(),
-            Report.countDocuments({ status: 'open' }),
-            Report.countDocuments({ status: 'in progress' }),
-            Report.countDocuments({ status: 'resolved' })
-        ]);
-
-        res.status(200).json({
-            total,
-            open,
-            inProgress,
-            resolved
-        });
+        const stats = await db.getStats();
+        res.status(200).json(stats);
     } catch (err) {
         console.error('❌ Error fetching stats:', err);
         res.status(500).json({ message: 'Failed to load statistics' });
@@ -122,11 +108,7 @@ router.get('/stats', adminAuth, async (req, res) => {
 router.patch('/reports/:id/status', adminAuth, async (req, res) => {
     try {
         const { status } = req.body;
-        const report = await Report.findByIdAndUpdate(
-            req.params.id,
-            { status },
-            { new: true }
-        );
+        const report = await db.updateReport(req.params.id, { status });
         
         if (!report) {
             return res.status(404).json({ message: 'Report not found' });
@@ -144,17 +126,11 @@ router.get('/reports/nearby', adminAuth, async (req, res) => {
     try {
         const { longitude, latitude, radius = 5000 } = req.query; // radius in meters
         
-        const reports = await Report.find({
-            location: {
-                $near: {
-                    $geometry: {
-                        type: 'Point',
-                        coordinates: [parseFloat(longitude), parseFloat(latitude)]
-                    },
-                    $maxDistance: parseInt(radius)
-                }
-            }
-        }).populate('createdBy', 'name email');
+        const reports = await db.getNearbyReports(
+            parseFloat(latitude), 
+            parseFloat(longitude), 
+            parseInt(radius)
+        );
 
         res.status(200).json(reports);
     } catch (err) {

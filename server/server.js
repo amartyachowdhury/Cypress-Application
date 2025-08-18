@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
@@ -7,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/authRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
-import adminRoutes from './routes/adminRoutes.js'; // ✅ Admin routes added
+import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
@@ -22,21 +21,32 @@ app.use(express.json());
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Debug route
-app.post('/test', (req, res) => {
-    console.log('🔥 /test route hit');
-    console.log('Request body:', req.body);
-    res.status(200).json({ message: 'Test route success' });
+// Test Supabase connection
+app.get('/test-db', async (req, res) => {
+    try {
+        const { db } = await import('./config/supabase.js');
+        const stats = await db.getStats();
+        res.status(200).json({ 
+            message: 'Supabase connection successful!', 
+            stats 
+        });
+    } catch (error) {
+        console.error('Database connection error:', error);
+        res.status(500).json({ 
+            message: 'Database connection failed', 
+            error: error.message 
+        });
+    }
 });
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
-app.use('/api/admin', adminRoutes); // ✅ Admin route
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/', (req, res) => {
-    res.status(200).json({ message: 'Cypress backend is running...' });
+    res.status(200).json({ message: 'Cypress backend is running with Supabase...' });
 });
 
 // 404 fallback
@@ -44,17 +54,8 @@ app.use((req, res) => {
     res.status(404).json({ message: `No route for ${req.method} ${req.url}` });
 });
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log("✅ Connected to MongoDB Atlas");
-}).catch((err) => {
-    console.error("❌ MongoDB connection failed:", err);
-});
-
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📊 Using Supabase as database`);
 });

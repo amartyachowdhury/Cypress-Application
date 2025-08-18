@@ -1,175 +1,161 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import sendEmail from '../utils/sendEmail.js';
+import { supabase } from '../config/supabase.js';
+import db from '../config/supabase.js';
 
 const router = express.Router();
 
-// 🔐 Register Route
+// Register new user
 router.post('/register', async (req, res) => {
-    console.log('📨 POST /register called');
-    const { email, username, password } = req.body;
-
-    if (!email || !username || !password) {
-        return res.status(400).json({ message: 'All fields are required' });
-    }
-
     try {
-        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
+        const { email, password, name } = req.body;
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const verificationCode = crypto.randomInt(100000, 999999).toString();
-        const verificationExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
-        const newUser = new User({
+        // Create user in Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
-            username,
-            password: hashedPassword,
-            verificationCode,
-            verificationExpiry
+            password,
+            options: {
+                data: {
+                    name: name
+                }
+            }
         });
 
-        await newUser.save();
+        if (authError) {
+            console.error('Auth error:', authError);
+            return res.status(400).json({ message: authError.message });
+        }
 
-        await sendEmail(
-            email,
-            'Cypress Verification Code',
-            `Hi ${username},\n\nYour verification code is: ${verificationCode}\nThis code will expire in 10 minutes.`
-        );
+        if (authData.user) {
+            // Create user profile in our users table
+            try {
+                await db.createUser({
+                    id: authData.user.id,
+                    email: authData.user.email,
+                    name: name
+                });
+            } catch (profileError) {
+                console.error('Profile creation error:', profileError);
+                // If profile creation fails, we should clean up the auth user
+                // For now, we'll just log the error
+            }
 
-        console.log('✅ User registered and verification email sent:', username);
-        res.status(201).json({ message: 'User registered. Verification code sent to email.' });
-
+            res.status(201).json({
+                message: 'User registered successfully! Please check your email to verify your account.',
+                user: {
+                    id: authData.user.id,
+                    email: authData.user.email,
+                    name: name
+                }
+            });
+        } else {
+            res.status(400).json({ message: 'Registration failed' });
+        }
     } catch (error) {
-        console.error('❌ Register error:', error);
-        res.status(500).json({ message: 'Something went wrong' });
+        console.error('Registration error:', error);
+        res.status(500).json({ message: 'Server error during registration' });
     }
 });
 
-// ✅ Login Route
+// Login user
 router.post('/login', async (req, res) => {
-    console.log('🧠 POST /login called');
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password required' });
-    }
-
     try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
+        const { email, password } = req.body;
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        const token = jwt.sign(
-            {
-                userId: user._id,
-                username: user.username,
-                email: user.email,
-                role: user.role
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '2h' }
-        );
-
-        console.log(`✅ Login successful for ${user.username}`);
-        res.status(200).json({ message: 'Login successful', token });
-
-    } catch (error) {
-        console.error('❌ Login error:', error);
-        res.status(500).json({ message: 'Something went wrong' });
-    }
-});
-
-// 🔁 Resend Verification Code
-router.post('/resend-code', async (req, res) => {
-    console.log('🔄 POST /resend-code called');
-    const { email } = req.body;
-
-    if (!email) {
-        return res.status(400).json({ message: 'Email is required' });
-    }
-
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        if (user.isVerified) {
-            return res.status(400).json({ message: 'User is already verified' });
-        }
-
-        const newCode = crypto.randomInt(100000, 999999).toString();
-        const newExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-        user.verificationCode = newCode;
-        user.verificationExpiry = newExpiry;
-        await user.save();
-
-        await sendEmail(
+        // Sign in with Supabase Auth
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
-            'New Cypress Verification Code',
-            `Here is your new verification code: ${newCode}. It expires in 10 minutes.`
-        );
+            password
+        });
 
-        console.log(`📬 Resent verification code to ${email}`);
-        res.status(200).json({ message: 'Verification code resent to your email.' });
+        if (error) {
+            console.error('Login error:', error);
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
 
+        if (data.user) {
+            // Get user profile
+            const userProfile = await db.getUserById(data.user.id);
+            
+            // Generate JWT token for our API
+            const token = jwt.sign(
+                { userId: data.user.id },
+                process.env.JWT_SECRET || 'your_jwt_secret',
+                { expiresIn: '24h' }
+            );
+
+            res.json({
+                message: 'Login successful!',
+                token,
+                user: {
+                    id: data.user.id,
+                    email: data.user.email,
+                    name: userProfile?.name || data.user.user_metadata?.name
+                }
+            });
+        } else {
+            res.status(401).json({ message: 'Login failed' });
+        }
     } catch (error) {
-        console.error('❌ Resend code error:', error);
-        res.status(500).json({ message: 'Something went wrong' });
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error during login' });
     }
 });
 
-// 🔐 Verify Code
-router.post('/verify', async (req, res) => {
-    console.log('🧪 POST /verify called');
-    const { email, code } = req.body;
-
-    if (!email || !code) {
-        return res.status(400).json({ message: 'Email and code required' });
-    }
-
+// Verify token middleware
+export const verifyToken = async (req, res, next) => {
     try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        const token = req.headers.authorization?.split(' ')[1];
+        
+        if (!token) {
+            return res.status(401).json({ message: 'Access token required' });
         }
 
-        if (user.isVerified) {
-            return res.status(400).json({ message: 'User is already verified' });
-        }
-
-        if (user.verificationCode !== code) {
-            return res.status(401).json({ message: 'Invalid verification code' });
-        }
-
-        if (user.verificationExpiry < new Date()) {
-            return res.status(410).json({ message: 'Verification code has expired' });
-        }
-
-        user.isVerified = true;
-        user.verificationCode = null;
-        user.verificationExpiry = null;
-        await user.save();
-
-        console.log(`🔐 ${user.username} is now verified!`);
-        res.status(200).json({ message: 'Account verified successfully!' });
-
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+        req.userId = decoded.userId;
+        next();
     } catch (error) {
-        console.error('❌ Verification error:', error);
-        res.status(500).json({ message: 'Something went wrong' });
+        console.error('Token verification error:', error);
+        res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
+// Get user profile
+router.get('/profile', verifyToken, async (req, res) => {
+    try {
+        const user = await db.getUserById(req.userId);
+        res.json(user);
+    } catch (error) {
+        console.error('Profile fetch error:', error);
+        res.status(500).json({ message: 'Failed to fetch profile' });
+    }
+});
+
+// Update user profile
+router.put('/profile', verifyToken, async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        const updatedUser = await db.updateUser(req.userId, { name, email });
+        res.json(updatedUser);
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ message: 'Failed to update profile' });
+    }
+});
+
+// Logout
+router.post('/logout', async (req, res) => {
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error('Logout error:', error);
+            return res.status(500).json({ message: 'Logout failed' });
+        }
+        res.json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({ message: 'Server error during logout' });
     }
 });
 
