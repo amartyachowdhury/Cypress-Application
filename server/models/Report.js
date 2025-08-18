@@ -33,6 +33,19 @@ const reportSchema = new mongoose.Schema(
                 required: true
             }
         },
+        images: [{
+            type: String, // URLs to uploaded images
+            required: false
+        }],
+        address: {
+            type: String,
+            required: false
+        },
+        category: {
+            type: String,
+            enum: ['infrastructure', 'safety', 'environment', 'noise', 'other'],
+            default: 'other'
+        },
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
