@@ -142,22 +142,35 @@ function SubmitReport() {
     };
 
     const steps = [
-        { number: 1, title: "Basic Info", description: "Title and description" },
-        { number: 2, title: "Details", description: "Category and severity" },
-        { number: 3, title: "Location", description: "Set location" },
-        { number: 4, title: "Images", description: "Add photos (optional)" },
-        { number: 5, title: "Review", description: "Submit report" }
+        { number: 1, title: "Basic Info", description: "Title and description", icon: "📝" },
+        { number: 2, title: "Details", description: "Category and severity", icon: "⚙️" },
+        { number: 3, title: "Location", description: "Set location", icon: "📍" },
+        { number: 4, title: "Images", description: "Add photos (optional)", icon: "📸" },
+        { number: 5, title: "Review", description: "Submit report", icon: "✅" }
     ];
 
     if (showSuccess) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
-                <div className="bg-white rounded-2xl p-8 shadow-lg text-center max-w-md mx-4">
-                    <div className="text-6xl mb-4">🎉</div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Report Submitted!</h2>
-                    <p className="text-gray-600 mb-6">Thank you for helping improve our community.</p>
-                    <div className="animate-pulse">
-                        <div className="text-sm text-gray-500">Redirecting to dashboard...</div>
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+                {/* Background decorations */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-green-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-tr from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                </div>
+                
+                <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-12 shadow-2xl text-center max-w-md mx-4 relative z-10 transform animate-in zoom-in-95 duration-500">
+                    <div className="text-8xl mb-6 animate-bounce">🎉</div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                        Report Submitted!
+                    </h2>
+                    <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                        Thank you for helping improve our community. Your report has been successfully submitted and is now being reviewed.
+                    </p>
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-4 border border-green-200/50">
+                        <div className="flex items-center justify-center space-x-3 text-green-600">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                            <span className="font-medium">Redirecting to dashboard...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -165,348 +178,379 @@ function SubmitReport() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 px-4 relative overflow-hidden">
+            {/* Background decorative elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-300/5 to-purple-300/5 rounded-full blur-3xl"></div>
+            </div>
+
+            <div className="max-w-5xl mx-auto relative z-10">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                <div className="text-center mb-10">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
                         Submit a Community Report 📝
                     </h1>
-                    <p className="text-gray-600">
-                        Help make our community better by reporting issues that need attention.
+                    <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+                        Help make our community better by reporting issues that need attention. Your contribution makes a real difference!
                     </p>
                 </div>
 
                 {/* Progress Steps */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-                    <div className="flex items-center justify-between mb-6">
-                        {steps.map((step, index) => (
-                            <div key={step.number} className="flex items-center">
-                                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold text-sm ${
-                                    currentStep >= step.number 
-                                        ? 'bg-blue-600 border-blue-600 text-white' 
-                                        : 'bg-gray-100 border-gray-300 text-gray-500'
-                                }`}>
-                                    {step.number}
+                <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20 mb-8 relative overflow-hidden">
+                    {/* Background decoration */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-8">
+                            {steps.map((step, index) => (
+                                <div key={step.number} className="flex items-center">
+                                    <div className={`flex items-center justify-center w-14 h-14 rounded-2xl border-2 font-bold text-lg transition-all duration-500 ${
+                                        currentStep >= step.number 
+                                            ? 'bg-gradient-to-br from-blue-500 to-indigo-500 border-blue-500 text-white shadow-lg' 
+                                            : 'bg-white/50 border-gray-300 text-gray-400'
+                                    }`}>
+                                        {step.icon}
+                                    </div>
+                                    {index < steps.length - 1 && (
+                                        <div className={`w-20 h-1 mx-4 rounded-full transition-all duration-500 ${
+                                            currentStep > step.number ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gray-300'
+                                        }`}></div>
+                                    )}
                                 </div>
-                                {index < steps.length - 1 && (
-                                    <div className={`w-16 h-0.5 mx-2 ${
-                                        currentStep > step.number ? 'bg-blue-600' : 'bg-gray-300'
-                                    }`}></div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                    <div className="text-center">
-                        <h3 className="text-lg font-semibold text-gray-800">
-                            {steps[currentStep - 1].title}
-                        </h3>
-                        <p className="text-gray-600">{steps[currentStep - 1].description}</p>
+                            ))}
+                        </div>
+                        <div className="text-center">
+                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                {steps[currentStep - 1].title}
+                            </h3>
+                            <p className="text-gray-600 text-lg">{steps[currentStep - 1].description}</p>
+                        </div>
                     </div>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-                    {/* Step 1: Basic Info */}
-                    {currentStep === 1 && (
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Report Title *
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g., Pothole on Main Street"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    required
-                                    className="w-full border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Description *
-                                </label>
-                                <textarea
-                                    placeholder="Please provide a detailed description of the issue..."
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    required
-                                    rows={4}
-                                    className="w-full border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg resize-none"
-                                />
-                            </div>
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(2)}
-                                    disabled={!title.trim() || !description.trim()}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
-                                >
-                                    Next Step →
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 2: Details */}
-                    {currentStep === 2 && (
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8 md:p-12 relative overflow-hidden">
+                    {/* Background decoration */}
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-400/10 to-blue-400/10 rounded-full blur-2xl"></div>
+                    
+                    <div className="relative z-10">
+                        {/* Step 1: Basic Info */}
+                        {currentStep === 1 && (
+                            <div className="space-y-8">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Category
+                                    <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                        Report Title *
                                     </label>
-                                    <select
-                                        value={category}
-                                        onChange={(e) => setCategory(e.target.value)}
-                                        className="w-full border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                                    >
-                                        <option value="infrastructure">🏗️ Infrastructure</option>
-                                        <option value="safety">🛡️ Safety</option>
-                                        <option value="environment">🌱 Environment</option>
-                                        <option value="noise">🔊 Noise</option>
-                                        <option value="other">📋 Other</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Severity Level
-                                    </label>
-                                    <select
-                                        value={severity}
-                                        onChange={(e) => setSeverity(e.target.value)}
-                                        className="w-full border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                                    >
-                                        <option value="low">🟢 Low - Minor issue</option>
-                                        <option value="medium">🟡 Medium - Moderate concern</option>
-                                        <option value="high">🔴 High - Urgent attention needed</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(1)}
-                                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-                                >
-                                    ← Previous
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(3)}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
-                                >
-                                    Next Step →
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 3: Location */}
-                    {currentStep === 3 && (
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Address (Optional)
-                                </label>
-                                <div className="flex gap-2">
                                     <input
                                         type="text"
-                                        placeholder="Enter address to set location"
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        className="flex-1 border border-gray-300 rounded-xl p-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                                        placeholder="e.g., Pothole on Main Street"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        required
+                                        className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                        Description *
+                                    </label>
+                                    <textarea
+                                        placeholder="Please provide a detailed description of the issue..."
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        required
+                                        rows={5}
+                                        className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm resize-none transition-all duration-300"
+                                    />
+                                </div>
+                                <div className="flex justify-end">
                                     <button
                                         type="button"
-                                        onClick={handleManualAddress}
-                                        className="px-6 py-4 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium"
+                                        onClick={() => setCurrentStep(2)}
+                                        disabled={!title.trim() || !description.trim()}
+                                        className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed font-semibold text-lg shadow-lg transform hover:scale-105 disabled:hover:scale-100"
                                     >
-                                        Set
+                                        Next Step →
                                     </button>
                                 </div>
                             </div>
+                        )}
 
-                            {locationError && (
-                                <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
-                                    {locationError}
+                        {/* Step 2: Details */}
+                        {currentStep === 2 && (
+                            <div className="space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div>
+                                        <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                            Category
+                                        </label>
+                                        <select
+                                            value={category}
+                                            onChange={(e) => setCategory(e.target.value)}
+                                            className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
+                                        >
+                                            <option value="infrastructure">🏗️ Infrastructure</option>
+                                            <option value="safety">🛡️ Safety</option>
+                                            <option value="environment">🌱 Environment</option>
+                                            <option value="noise">🔊 Noise</option>
+                                            <option value="other">📋 Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                            Severity Level
+                                        </label>
+                                        <select
+                                            value={severity}
+                                            onChange={(e) => setSeverity(e.target.value)}
+                                            className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
+                                        >
+                                            <option value="low">🟢 Low - Minor issue</option>
+                                            <option value="medium">🟡 Medium - Moderate concern</option>
+                                            <option value="high">🔴 High - Urgent attention needed</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            )}
+                                <div className="flex justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(1)}
+                                        className="px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold text-lg transform hover:scale-105"
+                                    >
+                                        ← Previous
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(3)}
+                                        className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 font-semibold text-lg shadow-lg transform hover:scale-105"
+                                    >
+                                        Next Step →
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
-                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                                {loading ? (
-                                    <div className="flex items-center space-x-3">
-                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                                        <span className="text-blue-700">📡 Detecting your location...</span>
+                        {/* Step 3: Location */}
+                        {currentStep === 3 && (
+                            <div className="space-y-8">
+                                <div>
+                                    <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                        Address (Optional)
+                                    </label>
+                                    <div className="flex gap-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter address to set location"
+                                            value={address}
+                                            onChange={(e) => setAddress(e.target.value)}
+                                            className="flex-1 border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleManualAddress}
+                                            className="px-8 py-5 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-2xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 font-semibold text-lg shadow-lg transform hover:scale-105"
+                                        >
+                                            Set
+                                        </button>
                                     </div>
-                                ) : coordinates ? (
-                                    <div className="flex items-center space-x-3">
-                                        <span className="text-2xl">✅</span>
-                                        <div>
-                                            <p className="text-blue-700 font-medium">Location set successfully!</p>
-                                            <p className="text-blue-600 text-sm">
-                                                📍 {coordinates[1].toFixed(4)}, {coordinates[0].toFixed(4)}
-                                            </p>
+                                </div>
+
+                                {locationError && (
+                                    <div className="p-6 bg-red-50 border-2 border-red-200 text-red-600 rounded-2xl">
+                                        <div className="flex items-center space-x-3">
+                                            <span className="text-2xl">⚠️</span>
+                                            <span className="font-medium">{locationError}</span>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center space-x-3">
-                                        <span className="text-2xl">⚠️</span>
-                                        <span className="text-blue-700">Failed to get your location. Please enter an address above.</span>
                                     </div>
                                 )}
-                            </div>
 
-                            <div className="flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(2)}
-                                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-                                >
-                                    ← Previous
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(4)}
-                                    disabled={!coordinates}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
-                                >
-                                    Next Step →
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 4: Images */}
-                    {currentStep === 4 && (
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Add Photos (Optional)
-                                </label>
-                                <p className="text-gray-600 text-sm mb-4">
-                                    Upload up to 5 images to help illustrate the issue. This can help authorities better understand the problem.
-                                </p>
-                                <input
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    className="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center hover:border-blue-400 transition-colors"
-                                />
-                            </div>
-                            
-                            {imageUrls.length > 0 && (
-                                <div>
-                                    <h4 className="text-sm font-medium text-gray-700 mb-3">Preview ({imageUrls.length}/5)</h4>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                        {imageUrls.map((url, index) => (
-                                            <div key={index} className="relative">
-                                                <img
-                                                    src={url}
-                                                    alt={`Preview ${index + 1}`}
-                                                    className="w-full h-24 object-cover rounded-lg"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeImage(index)}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
-                                                >
-                                                    ×
-                                                </button>
+                                <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
+                                    {loading ? (
+                                        <div className="flex items-center space-x-4">
+                                            <div className="relative">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                                <div className="absolute inset-0 rounded-full border-2 border-blue-200 animate-ping opacity-20"></div>
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(3)}
-                                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-                                >
-                                    ← Previous
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(5)}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
-                                >
-                                    Next Step →
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 5: Review & Submit */}
-                    {currentStep === 5 && (
-                        <div className="space-y-6">
-                            <div className="bg-gray-50 rounded-xl p-6">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4">Review Your Report</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <span className="text-sm font-medium text-gray-500">Title:</span>
-                                        <p className="text-gray-800">{title}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-sm font-medium text-gray-500">Description:</span>
-                                        <p className="text-gray-800">{description}</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <span className="text-sm font-medium text-gray-500">Category:</span>
-                                            <p className="text-gray-800 capitalize">{category}</p>
+                                            <span className="text-blue-700 text-lg font-medium">📡 Detecting your location...</span>
                                         </div>
-                                        <div>
-                                            <span className="text-sm font-medium text-gray-500">Severity:</span>
-                                            <p className="text-gray-800 capitalize">{severity}</p>
+                                    ) : coordinates ? (
+                                        <div className="flex items-center space-x-4">
+                                            <span className="text-3xl">✅</span>
+                                            <div>
+                                                <p className="text-blue-700 font-semibold text-lg">Location set successfully!</p>
+                                                <p className="text-blue-600 text-base">
+                                                    📍 {coordinates[1].toFixed(4)}, {coordinates[0].toFixed(4)}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    {address && (
-                                        <div>
-                                            <span className="text-sm font-medium text-gray-500">Address:</span>
-                                            <p className="text-gray-800">{address}</p>
-                                        </div>
-                                    )}
-                                    {images.length > 0 && (
-                                        <div>
-                                            <span className="text-sm font-medium text-gray-500">Images:</span>
-                                            <p className="text-gray-800">{images.length} photo(s) attached</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentStep(4)}
-                                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
-                                >
-                                    ← Previous
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={submitting || !coordinates}
-                                    className="px-8 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium flex items-center space-x-2"
-                                >
-                                    {submitting ? (
-                                        <>
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                            <span>Submitting...</span>
-                                        </>
                                     ) : (
-                                        <>
-                                            <span>🚀</span>
-                                            <span>Submit Report</span>
-                                        </>
+                                        <div className="flex items-center space-x-4">
+                                            <span className="text-3xl">⚠️</span>
+                                            <span className="text-blue-700 text-lg">Failed to get your location. Please enter an address above.</span>
+                                        </div>
                                     )}
-                                </button>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(2)}
+                                        className="px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold text-lg transform hover:scale-105"
+                                    >
+                                        ← Previous
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(4)}
+                                        disabled={!coordinates}
+                                        className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed font-semibold text-lg shadow-lg transform hover:scale-105 disabled:hover:scale-100"
+                                    >
+                                        Next Step →
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+
+                        {/* Step 4: Images */}
+                        {currentStep === 4 && (
+                            <div className="space-y-8">
+                                <div>
+                                    <label className="block text-lg font-semibold text-gray-700 mb-3">
+                                        Add Photos (Optional)
+                                    </label>
+                                    <p className="text-gray-600 text-base mb-6 leading-relaxed">
+                                        Upload up to 5 images to help illustrate the issue. Clear photos can help authorities better understand and address the problem quickly.
+                                    </p>
+                                    <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-all duration-300 bg-white/30 backdrop-blur-sm">
+                                        <input
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            className="hidden"
+                                            id="image-upload"
+                                        />
+                                        <label htmlFor="image-upload" className="cursor-pointer">
+                                            <div className="text-4xl mb-4">📸</div>
+                                            <p className="text-lg font-medium text-gray-700 mb-2">Click to upload images</p>
+                                            <p className="text-gray-500">or drag and drop</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                {imageUrls.length > 0 && (
+                                    <div>
+                                        <h4 className="text-lg font-semibold text-gray-700 mb-4">Preview ({imageUrls.length}/5)</h4>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {imageUrls.map((url, index) => (
+                                                <div key={index} className="relative group">
+                                                    <img
+                                                        src={url}
+                                                        alt={`Preview ${index + 1}`}
+                                                        className="w-full h-32 object-cover rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeImage(index)}
+                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-110 shadow-lg"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(3)}
+                                        className="px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold text-lg transform hover:scale-105"
+                                    >
+                                        ← Previous
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(5)}
+                                        className="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 font-semibold text-lg shadow-lg transform hover:scale-105"
+                                    >
+                                        Next Step →
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Step 5: Review & Submit */}
+                        {currentStep === 5 && (
+                            <div className="space-y-8">
+                                <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-8 border-2 border-gray-200">
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-6">Review Your Report</h3>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Title:</span>
+                                            <p className="text-gray-800 text-lg font-medium mt-1">{title}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Description:</span>
+                                            <p className="text-gray-800 text-lg mt-1 leading-relaxed">{description}</p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Category:</span>
+                                                <p className="text-gray-800 text-lg font-medium mt-1 capitalize">{category}</p>
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Severity:</span>
+                                                <p className="text-gray-800 text-lg font-medium mt-1 capitalize">{severity}</p>
+                                            </div>
+                                        </div>
+                                        {address && (
+                                            <div>
+                                                <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Address:</span>
+                                                <p className="text-gray-800 text-lg font-medium mt-1">{address}</p>
+                                            </div>
+                                        )}
+                                        {images.length > 0 && (
+                                            <div>
+                                                <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Images:</span>
+                                                <p className="text-gray-800 text-lg font-medium mt-1">{images.length} photo(s) attached</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(4)}
+                                        className="px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold text-lg transform hover:scale-105"
+                                    >
+                                        ← Previous
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={submitting || !coordinates}
+                                        className="px-10 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed font-semibold text-lg shadow-lg transform hover:scale-105 disabled:hover:scale-100 flex items-center space-x-3"
+                                    >
+                                        {submitting ? (
+                                            <>
+                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                                <span>Submitting...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>🚀</span>
+                                                <span>Submit Report</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </form>
             </div>
         </div>

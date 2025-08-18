@@ -29,38 +29,63 @@ const createCustomIcon = (severity) => {
     return L.divIcon({
         className: 'custom-marker',
         html: `<div style="
-            background-color: ${colors[severity] || colors.low};
-            width: 20px;
-            height: 20px;
+            background: linear-gradient(135deg, ${colors[severity] || colors.low}, ${colors[severity] || colors.low}dd);
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             border: 3px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        "></div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+        ">${severity === 'high' ? '!' : severity === 'medium' ? '•' : '•'}</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
     });
 };
 
-// Quick Action Card Component
+// Enhanced Quick Action Card Component
 const QuickActionCard = ({ title, description, icon, onClick, color = "blue" }) => {
     const colorClasses = {
-        blue: "bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700",
-        green: "bg-green-50 border-green-200 hover:bg-green-100 text-green-700",
-        purple: "bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-700",
-        orange: "bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-700"
+        blue: "bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:from-blue-100 hover:to-blue-200 text-blue-700 shadow-blue-100",
+        green: "bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:from-green-100 hover:to-green-200 text-green-700 shadow-green-100",
+        purple: "bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:from-purple-100 hover:to-purple-200 text-purple-700 shadow-purple-100",
+        orange: "bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:from-orange-100 hover:to-orange-200 text-orange-700 shadow-orange-100"
     };
 
     return (
         <button
             onClick={onClick}
-            className={`w-full p-6 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-lg ${colorClasses[color]}`}
+            className={`w-full p-6 rounded-2xl border-2 transition-all duration-500 hover:scale-105 hover:shadow-xl transform hover:-translate-y-1 ${colorClasses[color]} shadow-lg`}
         >
             <div className="text-center">
-                <div className="text-3xl mb-3">{icon}</div>
-                <h3 className="font-semibold text-lg mb-2">{title}</h3>
-                <p className="text-sm opacity-80">{description}</p>
+                <div className="text-4xl mb-4 transform transition-transform duration-300 hover:scale-110">{icon}</div>
+                <h3 className="font-bold text-lg mb-2">{title}</h3>
+                <p className="text-sm opacity-80 leading-relaxed">{description}</p>
             </div>
         </button>
+    );
+};
+
+// Enhanced Stats Card Component
+const StatsCard = ({ title, value, icon, color = "blue", gradient = "from-blue-500 to-blue-600" }) => {
+    return (
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+                <div>
+                    <p className="text-gray-600 text-sm font-medium mb-1">{title}</p>
+                    <p className={`text-3xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
+                        {value}
+                    </p>
+                </div>
+                <div className={`text-4xl p-3 rounded-xl bg-gradient-to-br ${gradient} text-white shadow-lg`}>
+                    {icon}
+                </div>
+            </div>
+        </div>
     );
 };
 
@@ -107,32 +132,14 @@ const DashboardMap = () => {
     // Default center coordinates for Toronto
     const defaultCenter = [43.65107, -79.347015];
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'resolved': return 'text-green-600';
-            case 'in progress': return 'text-blue-600';
-            case 'open': return 'text-gray-600';
-            default: return 'text-gray-600';
-        }
-    };
-
-    const getSeverityColor = (severity) => {
-        switch (severity) {
-            case 'high': return 'text-red-600';
-            case 'medium': return 'text-yellow-600';
-            case 'low': return 'text-green-600';
-            default: return 'text-gray-600';
-        }
-    };
-
     const getStatusBadge = (status) => {
         const colors = {
-            'open': 'bg-gray-100 text-gray-800',
-            'in progress': 'bg-blue-100 text-blue-800',
-            'resolved': 'bg-green-100 text-green-800'
+            'open': 'bg-gray-100 text-gray-800 border-gray-200',
+            'in progress': 'bg-blue-100 text-blue-800 border-blue-200',
+            'resolved': 'bg-green-100 text-green-800 border-green-200'
         };
         return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || colors.open}`}>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${colors[status] || colors.open}`}>
                 {status}
             </span>
         );
@@ -140,12 +147,12 @@ const DashboardMap = () => {
 
     const getSeverityBadge = (severity) => {
         const colors = {
-            'low': 'bg-green-100 text-green-800',
-            'medium': 'bg-yellow-100 text-yellow-800',
-            'high': 'bg-red-100 text-red-800'
+            'low': 'bg-green-100 text-green-800 border-green-200',
+            'medium': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+            'high': 'bg-red-100 text-red-800 border-red-200'
         };
         return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[severity] || colors.low}`}>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${colors[severity] || colors.low}`}>
                 {severity}
             </span>
         );
@@ -155,52 +162,60 @@ const DashboardMap = () => {
         return (
             <div className="flex items-center justify-center min-h-96">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading your community reports...</p>
+                    <div className="relative">
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                        <div className="absolute inset-0 rounded-full border-2 border-blue-200 animate-ping opacity-20"></div>
+                    </div>
+                    <p className="text-gray-600 text-lg font-medium">Loading your community reports...</p>
+                    <p className="text-gray-400 text-sm mt-2">Preparing your dashboard</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 dashboard-content">
+        <div className="space-y-8 dashboard-content">
             {/* Welcome Section */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20 relative overflow-hidden">
+                {/* Background decoration */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-400/10 to-blue-400/10 rounded-full blur-2xl"></div>
+                
+                <div className="relative z-10 text-center mb-8">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
                         Welcome to Your Community Hub! 🌳
                     </h1>
-                    <p className="text-gray-600 max-w-2xl mx-auto">
-                        Stay connected with your community. View reports, submit new issues, and track progress on local improvements.
+                    <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed">
+                        Stay connected with your community. View reports, submit new issues, and track progress on local improvements that make our neighborhood better for everyone.
                     </p>
                 </div>
 
                 {/* Quick Action Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <QuickActionCard
                         title="Submit Report"
-                        description="Report a new community issue"
+                        description="Report a new community issue that needs attention"
                         icon="📝"
                         onClick={() => navigate('/dashboard/submit')}
                         color="blue"
                     />
                     <QuickActionCard
                         title="My Reports"
-                        description="View and manage your reports"
+                        description="View and manage your submitted reports"
                         icon="📋"
                         onClick={() => navigate('/dashboard/my-reports')}
                         color="green"
                     />
                     <QuickActionCard
                         title="Community Stats"
-                        description="See community activity"
+                        description="See community activity and engagement"
                         icon="📊"
                         onClick={() => setShowMap(!showMap)}
                         color="purple"
                     />
                     <QuickActionCard
                         title="Recent Activity"
-                        description="Latest community updates"
+                        description="Latest community updates and changes"
                         icon="🔄"
                         onClick={() => setShowFilters(!showFilters)}
                         color="orange"
@@ -208,60 +223,47 @@ const DashboardMap = () => {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-blue-600 text-sm font-medium">Total Reports</p>
-                                <p className="text-2xl font-bold text-blue-800">{reports.length}</p>
-                            </div>
-                            <div className="text-3xl">📊</div>
-                        </div>
-                    </div>
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-green-600 text-sm font-medium">Resolved</p>
-                                <p className="text-2xl font-bold text-green-800">
-                                    {reports.filter(r => r.status === 'resolved').length}
-                                </p>
-                            </div>
-                            <div className="text-3xl">✅</div>
-                        </div>
-                    </div>
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-orange-600 text-sm font-medium">In Progress</p>
-                                <p className="text-2xl font-bold text-orange-800">
-                                    {reports.filter(r => r.status === 'in progress').length}
-                                </p>
-                            </div>
-                            <div className="text-3xl">🔄</div>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <StatsCard
+                        title="Total Reports"
+                        value={reports.length}
+                        icon="📊"
+                        gradient="from-blue-500 to-blue-600"
+                    />
+                    <StatsCard
+                        title="Resolved"
+                        value={reports.filter(r => r.status === 'resolved').length}
+                        icon="✅"
+                        gradient="from-green-500 to-green-600"
+                    />
+                    <StatsCard
+                        title="In Progress"
+                        value={reports.filter(r => r.status === 'in progress').length}
+                        icon="🔄"
+                        gradient="from-orange-500 to-orange-600"
+                    />
                 </div>
             </div>
 
             {/* Map/List Toggle */}
             <div className="flex justify-between items-center">
-                <div className="flex space-x-2">
+                <div className="flex space-x-3">
                     <button
                         onClick={() => setShowMap(true)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
                             showMap 
-                                ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg' 
+                                : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white shadow-md'
                         }`}
                     >
                         🗺️ Map View
                     </button>
                     <button
                         onClick={() => setShowMap(false)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
                             !showMap 
-                                ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg' 
+                                : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white shadow-md'
                         }`}
                     >
                         📋 List View
@@ -270,7 +272,7 @@ const DashboardMap = () => {
 
                 <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                    className="px-6 py-3 bg-white/80 backdrop-blur-sm text-gray-600 rounded-xl hover:bg-white transition-all duration-300 font-semibold shadow-md transform hover:scale-105"
                 >
                     🔍 Filters
                 </button>
@@ -278,15 +280,15 @@ const DashboardMap = () => {
 
             {/* Filters */}
             {showFilters && (
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold mb-4">Filter Reports</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 animate-in slide-in-from-top-2 duration-300">
+                    <h3 className="text-xl font-bold text-gray-800 mb-6">Filter Reports</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">Status</label>
                             <select
                                 value={filteredStatus}
                                 onChange={(e) => setFilteredStatus(e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
                             >
                                 <option value="all">All Status</option>
                                 <option value="open">Open</option>
@@ -295,11 +297,11 @@ const DashboardMap = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">Category</label>
                             <select
                                 value={filteredCategory}
                                 onChange={(e) => setFilteredCategory(e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
                             >
                                 <option value="all">All Categories</option>
                                 <option value="infrastructure">Infrastructure</option>
@@ -310,11 +312,11 @@ const DashboardMap = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Severity</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-3">Severity</label>
                             <select
                                 value={filteredSeverity}
                                 onChange={(e) => setFilteredSeverity(e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
                             >
                                 <option value="all">All Severities</option>
                                 <option value="low">Low</option>
@@ -328,12 +330,12 @@ const DashboardMap = () => {
 
             {/* Map View */}
             {showMap ? (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="p-4 border-b border-gray-100">
-                        <h2 className="text-xl font-semibold text-gray-800">
+                <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
+                    <div className="p-6 border-b border-gray-200/50">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">
                             Community Map ({filteredReports.length} reports)
                         </h2>
-                        <p className="text-gray-600 text-sm">Click on markers to view report details</p>
+                        <p className="text-gray-600">Click on markers to view detailed report information</p>
                     </div>
                     <div className="h-96 md:h-[500px] relative">
                         <MapContainer
@@ -353,21 +355,21 @@ const DashboardMap = () => {
                                     icon={createCustomIcon(report.severity)}
                                 >
                                     <Popup className="custom-popup">
-                                        <div className="p-2">
-                                            <h3 className="font-semibold text-lg mb-2">{report.title}</h3>
-                                            <p className="text-gray-600 mb-3">{report.description}</p>
-                                            <div className="space-y-2">
+                                        <div className="p-4 max-w-sm">
+                                            <h3 className="font-bold text-lg mb-3 text-gray-800">{report.title}</h3>
+                                            <p className="text-gray-600 mb-4 leading-relaxed">{report.description}</p>
+                                            <div className="space-y-3">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-sm text-gray-500">Status:</span>
+                                                    <span className="text-sm text-gray-500 font-medium">Status:</span>
                                                     {getStatusBadge(report.status)}
                                                 </div>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-sm text-gray-500">Severity:</span>
+                                                    <span className="text-sm text-gray-500 font-medium">Severity:</span>
                                                     {getSeverityBadge(report.severity)}
                                                 </div>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-sm text-gray-500">Category:</span>
-                                                    <span className="text-sm font-medium capitalize">{report.category}</span>
+                                                    <span className="text-sm text-gray-500 font-medium">Category:</span>
+                                                    <span className="text-sm font-semibold capitalize text-gray-700">{report.category}</span>
                                                 </div>
                                                 {report.address && (
                                                     <div className="text-sm text-gray-500">
@@ -375,11 +377,11 @@ const DashboardMap = () => {
                                                     </div>
                                                 )}
                                                 {report.images && report.images.length > 0 && (
-                                                    <div className="mt-3">
+                                                    <div className="mt-4">
                                                         <img 
                                                             src={report.images[0]} 
                                                             alt="Report" 
-                                                            className="w-full h-24 object-cover rounded-lg"
+                                                            className="w-full h-32 object-cover rounded-lg shadow-md"
                                                         />
                                                     </div>
                                                 )}
@@ -393,48 +395,76 @@ const DashboardMap = () => {
                 </div>
             ) : (
                 /* List View */
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-                    <div className="p-4 border-b border-gray-100">
-                        <h2 className="text-xl font-semibold text-gray-800">
+                <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20">
+                    <div className="p-6 border-b border-gray-200/50">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">
                             Report List ({filteredReports.length} reports)
                         </h2>
+                        <p className="text-gray-600">Browse through all community reports</p>
                     </div>
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-gray-200/50">
                         {filteredReports.length === 0 ? (
-                            <div className="p-8 text-center">
-                                <div className="text-4xl mb-4">📭</div>
-                                <h3 className="text-lg font-medium text-gray-800 mb-2">No reports found</h3>
-                                <p className="text-gray-600 mb-4">Try adjusting your filters or submit a new report.</p>
+                            <div className="p-12 text-center">
+                                <div className="text-6xl mb-6">📭</div>
+                                <h3 className="text-xl font-semibold text-gray-800 mb-3">No reports found</h3>
+                                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                                    {reports.length === 0 
+                                        ? "You haven't submitted any reports yet. Start making a difference in your community!" 
+                                        : "Try adjusting your filters to see more reports."
+                                    }
+                                </p>
                                 <button
                                     onClick={() => navigate('/dashboard/submit')}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 font-semibold shadow-lg transform hover:scale-105"
                                 >
-                                    Submit Report
+                                    Submit Your First Report
                                 </button>
                             </div>
                         ) : (
                             filteredReports.map((report) => (
-                                <div key={report.id} className="p-6 hover:bg-gray-50 transition-colors">
-                                    <div className="flex items-start justify-between">
+                                <div key={report.id} className="p-6 hover:bg-white/50 transition-all duration-300">
+                                    <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
                                         <div className="flex-1">
-                                            <div className="flex items-center space-x-3 mb-2">
-                                                <h3 className="text-lg font-semibold text-gray-800">{report.title}</h3>
-                                                {getStatusBadge(report.status)}
-                                                {getSeverityBadge(report.severity)}
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="flex items-center space-x-4">
+                                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
+                                                        <span className="text-2xl">📋</span>
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-xl font-bold text-gray-800 mb-2">{report.title}</h3>
+                                                        <div className="flex items-center space-x-3">
+                                                            {getStatusBadge(report.status)}
+                                                            {getSeverityBadge(report.severity)}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p className="text-gray-600 mb-3">{report.description}</p>
-                                            <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                                <span>📂 {report.category}</span>
-                                                {report.address && <span>📍 {report.address}</span>}
-                                                <span>📅 {new Date(report.created_at).toLocaleDateString()}</span>
+                                            <p className="text-gray-600 mb-4 leading-relaxed">{report.description}</p>
+                                            <div className="flex flex-wrap items-center space-x-6 text-sm text-gray-500">
+                                                <span className="flex items-center space-x-1">
+                                                    <span>📂</span>
+                                                    <span className="font-medium capitalize">{report.category}</span>
+                                                </span>
+                                                {report.address && (
+                                                    <span className="flex items-center space-x-1">
+                                                        <span>📍</span>
+                                                        <span>{report.address}</span>
+                                                    </span>
+                                                )}
+                                                <span className="flex items-center space-x-1">
+                                                    <span>📅</span>
+                                                    <span>{new Date(report.created_at).toLocaleDateString()}</span>
+                                                </span>
                                             </div>
                                         </div>
                                         {report.images && report.images.length > 0 && (
-                                            <img 
-                                                src={report.images[0]} 
-                                                alt="Report" 
-                                                className="w-20 h-20 object-cover rounded-lg ml-4"
-                                            />
+                                            <div className="md:w-32 md:flex-shrink-0">
+                                                <img 
+                                                    src={report.images[0]} 
+                                                    alt="Report" 
+                                                    className="w-full h-24 md:h-32 object-cover rounded-xl shadow-md"
+                                                />
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -444,29 +474,66 @@ const DashboardMap = () => {
                 </div>
             )}
 
-            {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg">
-                    {error}
-                </div>
-            )}
-
-            {/* Test content to ensure scrolling works */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Community Guidelines</h3>
-                <div className="space-y-4 text-gray-600">
-                    <p>Thank you for using Cypress Community Hub! Here are some guidelines to help make our community better:</p>
-                    <ul className="list-disc list-inside space-y-2 ml-4">
-                        <li>Be specific and detailed when describing issues</li>
-                        <li>Include clear photos when possible</li>
-                        <li>Provide accurate location information</li>
-                        <li>Be respectful and constructive in your reports</li>
-                        <li>Follow up on the status of your reports</li>
-                    </ul>
-                    <p className="text-sm text-gray-500 mt-4">
-                        Together, we can make our community a better place for everyone! 🌟
-                    </p>
+            {/* Community Guidelines */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-3xl p-8 shadow-xl border border-blue-200/50 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-2xl"></div>
+                
+                <div className="relative z-10">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Community Guidelines 🌟</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <p className="text-gray-700 leading-relaxed">
+                                Thank you for using Cypress Community Hub! Here are some guidelines to help make our community better:
+                            </p>
+                            <ul className="space-y-3">
+                                <li className="flex items-start space-x-3">
+                                    <span className="text-blue-500 text-lg">•</span>
+                                    <span className="text-gray-700">Be specific and detailed when describing issues</span>
+                                </li>
+                                <li className="flex items-start space-x-3">
+                                    <span className="text-blue-500 text-lg">•</span>
+                                    <span className="text-gray-700">Include clear photos when possible</span>
+                                </li>
+                                <li className="flex items-start space-x-3">
+                                    <span className="text-blue-500 text-lg">•</span>
+                                    <span className="text-gray-700">Provide accurate location information</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className="space-y-4">
+                            <ul className="space-y-3">
+                                <li className="flex items-start space-x-3">
+                                    <span className="text-blue-500 text-lg">•</span>
+                                    <span className="text-gray-700">Be respectful and constructive in your reports</span>
+                                </li>
+                                <li className="flex items-start space-x-3">
+                                    <span className="text-blue-500 text-lg">•</span>
+                                    <span className="text-gray-700">Follow up on the status of your reports</span>
+                                </li>
+                                <li className="flex items-start space-x-3">
+                                    <span className="text-blue-500 text-lg">•</span>
+                                    <span className="text-gray-700">Encourage others to participate</span>
+                                </li>
+                            </ul>
+                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-white/50">
+                                <p className="text-sm text-gray-600 text-center font-medium">
+                                    Together, we can make our community a better place for everyone! 🌟
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 p-6 rounded-2xl shadow-lg">
+                    <div className="flex items-center space-x-3">
+                        <span className="text-2xl">⚠️</span>
+                        <span className="font-medium">{error}</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
