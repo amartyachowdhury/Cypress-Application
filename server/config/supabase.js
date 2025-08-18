@@ -189,6 +189,18 @@ export const db = {
         return data;
     },
 
+    async updateAdmin(email, updates) {
+        const { data, error } = await supabaseAdmin
+            .from('admins')
+            .update(updates)
+            .eq('email', email)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        return data;
+    },
+
     // Statistics
     async getStats() {
         const { data, error } = await supabaseAdmin
