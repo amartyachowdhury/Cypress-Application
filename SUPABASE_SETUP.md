@@ -32,7 +32,7 @@ This guide will help you migrate the Cypress application from MongoDB Atlas to S
 ### 3. Set Up Database Schema
 
 1. In Supabase dashboard, go to **SQL Editor**
-2. Copy the contents of `server/supabase-schema.sql`
+2. Copy the contents of `server/simple-supabase-schema.sql` (or `server/complete-supabase-schema.sql` for full features)
 3. Paste and run the SQL script
 4. This will create all necessary tables, indexes, and functions
 
@@ -191,6 +191,12 @@ Admin authentication uses a separate system with bcrypt:
 - `POST /api/admin/login`: Admin login
 - `GET /api/reports/mine`: User's reports
 - `GET /api/admin/reports`: All reports (admin)
+
+### Application URLs
+
+- **Frontend**: `http://localhost:3002`
+- **Backend API**: `http://localhost:5050`
+- **Database Test**: `http://localhost:5050/test-db`
 
 ## 🔧 Troubleshooting
 
