@@ -29,10 +29,6 @@ logs
 *.swp
 *.swo
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Testing
 /coverage
@@ -75,8 +71,6 @@ dist
 
 # Gatsby files
 .cache/
-# Comment in the public line in if your project uses Gatsby and not Next.js
-# public
 
 # VuePress build output
 .vuepress/dist
@@ -101,4 +95,22 @@ dist
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
-.pnp.* 
+.pnp.*
+
+# Uploads and temporary files
+uploads/
+temp/
+tmp/
+
+# Database files
+*.db
+*.sqlite
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db 

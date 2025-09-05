@@ -35,7 +35,53 @@ A full-stack web application that allows citizens to report and track local issu
 - bcrypt for password hashing
 - PostGIS for geospatial data
 
+## Project Structure
 
+```
+Cypress-Application/
+├── client/                    # Frontend React application
+│   ├── src/
+│   │   ├── admin/            # Admin components
+│   │   ├── components/       # Reusable UI components
+│   │   ├── constants/        # Application constants
+│   │   ├── contexts/         # React contexts
+│   │   ├── layouts/          # Layout components
+│   │   ├── pages/            # Page components
+│   │   ├── services/         # API services
+│   │   └── utils/            # Utility functions
+│   ├── public/               # Static files
+│   └── package.json
+│
+├── server/                   # Backend Node.js application
+│   ├── config/              # Configuration files
+│   ├── constants/           # Application constants
+│   ├── controllers/         # Route controllers
+│   ├── middleware/          # Custom middleware
+│   ├── models/              # Mongoose models
+│   ├── routes/              # API routes
+│   ├── scripts/             # Utility scripts
+│   ├── services/            # Business logic services
+│   ├── utils/               # Utility functions
+│   ├── validations/         # Input validation schemas
+│   └── server.js            # Main server file
+│
+├── package.json             # Root package.json with scripts
+└── README.md
+```
+
+
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB or Supabase account
+- npm or yarn
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
