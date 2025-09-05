@@ -79,16 +79,13 @@ app.use("/api/auth", (await import("./routes/authRoutes.js")).default);
 app.use("/api/reports", (await import("./routes/reportRoutes.js")).default);
 app.use("/api/admin", (await import("./routes/adminRoutes.js")).default);
 
-// Test database connection
-app.get("/test-db", async (req, res) => {
-    try {
-        const { db } = await import("./config/supabase.js");
-        await db.getStats();
-        res.json({ message: "Database connection successful!" });
-    } catch (error) {
-        console.error("Database connection failed:", error);
-        res.status(500).json({ error: "Database connection failed" });
-    }
+// Health check endpoint
+app.get("/health", (req, res) => {
+    res.json({ 
+        status: "OK", 
+        message: "Server is running",
+        timestamp: new Date().toISOString()
+    });
 });
 
 // Test notification endpoint
