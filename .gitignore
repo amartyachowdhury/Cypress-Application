@@ -38,6 +38,15 @@ logs
 .DS_Store
 Thumbs.db
 
+# Docker
+.docker/
+docker-compose.override.yml
+.dockerignore
+
+# MongoDB data
+data/
+*.db
+
 # Optional npm cache directory
 .npm
 

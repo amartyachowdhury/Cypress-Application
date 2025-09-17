@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: cypress-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: cypress_tracker
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - cypress-network
+
+  # Backend Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: cypress-server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5050
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/cypress_tracker?authSource=admin
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "5050:5050"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./server/uploads:/app/uploads
+    networks:
+      - cypress-network
+
+  # Frontend Client
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: cypress-client
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:5050/api
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - cypress-network
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: cypress-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cypress-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  cypress-network:
+    driver: bridge

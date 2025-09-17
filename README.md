@@ -1,11 +1,11 @@
 # Cypress - Community Problem Reporting Application
 
-A full-stack web application that allows citizens to report and track local issues in their community. Built with modern web technologies and Supabase.
+A full-stack web application that allows citizens to report and track local issues in their community. Built with modern web technologies and MongoDB.
 
 ## Features
 
 ### User Features
-- 🔐 User Authentication (Supabase Auth)
+- 🔐 User Authentication (JWT)
 - 📝 Submit Reports with Location
 - 🗺️ Interactive Map View
 - 📊 Personal Report Management
@@ -30,10 +30,10 @@ A full-stack web application that allows citizens to report and track local issu
 
 ### Backend
 - Node.js & Express.js
-- Supabase (PostgreSQL) for database
+- MongoDB with Mongoose
 - JWT for authentication
 - bcrypt for password hashing
-- PostGIS for geospatial data
+- Geospatial queries for location data
 
 ## Project Structure
 
@@ -75,6 +75,73 @@ Cypress-Application/
 - MongoDB or Supabase account
 - npm or yarn
 
+## Quick Start with Docker
+
+The easiest way to run the application is using Docker:
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd Cypress-Application
+
+# Start all services with Docker
+./docker-scripts.sh start
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend: http://localhost:5050
+# Admin: http://localhost:3000/admin/login
+```
+
+**Default Admin Credentials:**
+- Email: admin@cypress.com
+- Password: admin123
+
+For detailed Docker setup instructions, see [DOCKER.md](DOCKER.md).
+
+## Manual Installation
+
+If you prefer to run without Docker:
+
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd Cypress-Application
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm run install:all
+   ```
+
+3. **Set up environment variables:**
+   ```bash
+   # Copy environment files
+   cp env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. **Start the development servers:**
+   ```bash
+   # Start both frontend and backend
+   npm run dev
+   
+   # Or start individually
+   npm run server:dev  # Backend only
+   npm run client:dev  # Frontend only
+   ```
+
+5. **Access the application:**
+   - Frontend: http://localhost:3000
+   - Backend: http://localhost:5050
+
 ## Contributing
 
 1. Fork the repository
@@ -85,4 +152,4 @@ Cypress-Application/
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
