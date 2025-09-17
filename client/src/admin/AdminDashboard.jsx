@@ -34,7 +34,7 @@ const AdminDashboard = () => {
       }
 
       const response = await reportsAPI.getAll();
-      setReports(response.data);
+      setReports(response.data.reports || []);
     } catch (err) {
       console.error('Error fetching reports:', err);
 

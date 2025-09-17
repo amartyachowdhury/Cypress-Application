@@ -16,7 +16,7 @@ import { fileURLToPath } from 'url';
 
 // Import configurations
 import connectDB from './config/database.js';
-import { env, cors as corsConfig, socket } from '../../../config/index.js';
+import { env, cors as corsConfig, socket } from '/app/config/index.js';
 import logger from './utils/logger.js';
 
 // Import middleware

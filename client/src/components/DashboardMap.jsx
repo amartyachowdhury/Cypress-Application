@@ -127,7 +127,7 @@ const DashboardMap = () => {
       try {
         const response = await reportsAPI.getUserReports();
         console.log('Fetched reports:', response.data);
-        setReports(response.data);
+        setReports(response.data.reports || []);
       } catch (err) {
         console.error('❌ Error loading reports:', err);
         setError('Failed to load reports.');

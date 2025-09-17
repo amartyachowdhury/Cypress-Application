@@ -22,7 +22,7 @@ function MyReports() {
   const fetchReports = async () => {
     try {
       const response = await reportsAPI.getUserReports();
-      setReports(response.data);
+      setReports(response.data.reports || []);
     } catch (err) {
       console.error('Error fetching reports:', err);
       if (err.response?.status === 401) {

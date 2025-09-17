@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
-import { config } from '../config/index.js';
+import { env } from '/app/config/index.js';
 
 const adminAuth = async(req, res, next) => {
   try {
@@ -10,7 +10,7 @@ const adminAuth = async(req, res, next) => {
       throw new Error('No token provided');
     }
 
-    const decoded = jwt.verify(token, config.jwtSecret);
+    const decoded = jwt.verify(token, env.JWT_SECRET);
     const admin = await Admin.findOne({ _id: decoded._id });
 
     if (!admin) {

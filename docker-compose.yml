@@ -21,8 +21,8 @@ services:
   # Backend Server
   server:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
     container_name: cypress-server
     restart: unless-stopped
     environment:

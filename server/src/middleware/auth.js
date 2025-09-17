@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { config } from '../config/index.js';
+import { env } from '/app/config/index.js';
 
 export const auth = async(req, res, next) => {
   try {
@@ -10,7 +10,7 @@ export const auth = async(req, res, next) => {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const decoded = jwt.verify(token, config.jwtSecret);
+    const decoded = jwt.verify(token, env.JWT_SECRET);
     const user = await User.findById(decoded._id);
 
     if (!user) {

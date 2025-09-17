@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { config } from '../config/index.js';
+import { env } from '/app/config/index.js';
 
 // Define log levels
 const levels = {
@@ -37,7 +37,7 @@ const transports = [
 ];
 
 // Add file transport in production
-if (config.nodeEnv === 'production') {
+if (env.NODE_ENV === 'production') {
   transports.push(
     // Error log file
     new winston.transports.File({
@@ -61,7 +61,7 @@ if (config.nodeEnv === 'production') {
 
 // Create the logger
 const logger = winston.createLogger({
-  level: config.nodeEnv === 'development' ? 'debug' : 'warn',
+  level: env.NODE_ENV === 'development' ? 'debug' : 'warn',
   levels,
   transports,
   exitOnError: false,

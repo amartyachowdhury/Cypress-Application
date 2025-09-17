@@ -1,6 +1,6 @@
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { cors, rateLimit as rateLimitConfig, authRateLimit, reportRateLimit } from '../../../config/index.js';
+import { cors, rateLimit as rateLimitConfig, authRateLimit, reportRateLimit } from '/app/config/index.js';
 
 // Rate limiting configurations
 export const createRateLimit = (windowMs, max, message) => {

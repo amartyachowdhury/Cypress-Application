@@ -5,13 +5,16 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY server/package*.json ./
 
 # Install dependencies
 RUN npm install --only=production
 
 # Copy source code
-COPY . .
+COPY server/ .
+
+# Copy config directory
+COPY config ./config
 
 # Create uploads directory
 RUN mkdir -p uploads

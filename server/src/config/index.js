@@ -1,2 +1,2 @@
 // Re-export centralized configuration
-export { config } from '../../../config/index.js';
+export * from '/app/config/index.js';

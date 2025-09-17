@@ -2,11 +2,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import Admin from '../models/Admin.js';
-import { config } from '../config/index.js';
+import { env } from '/app/config/index.js';
 
 export class AuthService {
   static generateToken(user) {
-    return jwt.sign({ _id: user._id.toString() }, config.jwtSecret, {
+    return jwt.sign({ _id: user._id.toString() }, env.JWT_SECRET, {
       expiresIn: '24h',
     });
   }

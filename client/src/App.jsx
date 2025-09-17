@@ -67,42 +67,45 @@ function App() {
   console.log('App rendering');
 
   return (
-    <div className="app-container">
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
+    <NotificationProvider>
+      <div className="app-container">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify" element={<Verify />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* Protected User Dashboard */}
-        <Route
-          path="/dashboard/*"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Routes>
-                  <Route index element={<DashboardMap />} />
-                  <Route path="submit" element={<SubmitReport />} />
-                  <Route path="my-reports" element={<MyReports />} />
-                </Routes>
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected User Dashboard */}
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Routes>
+                    <Route index element={<DashboardMap />} />
+                    <Route path="submit-report" element={<SubmitReport />} />
+                    <Route path="my-reports" element={<MyReports />} />
+                  </Routes>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin Dashboard */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
-      </Routes>
-    </div>
+          {/* Admin Dashboard */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+        </Routes>
+        <NotificationToasts />
+      </div>
+    </NotificationProvider>
   );
 }
 
