@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 /* Remove any conflicting styles */
-html, body, #root {
+html,
+body,
+#root {
   min-height: 100%;
   width: 100%;
   margin: 0;
@@ -12,7 +14,10 @@ html, body, #root {
 
 /* Remove overflow hidden as it might hide content */
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
   background-color: #f3f4f6;
   overflow-x: hidden;
   overflow-y: auto;

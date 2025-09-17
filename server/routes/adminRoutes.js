@@ -1,6 +1,11 @@
 import express from 'express';
 import adminAuth from '../middleware/adminAuth.js';
-import { loginAdmin, verifyAdmin, getAllReports, updateReportStatus } from '../controllers/adminController.js';
+import {
+  loginAdmin,
+  verifyAdmin,
+  getAllReports,
+  updateReportStatus,
+} from '../controllers/adminController.js';
 
 const router = express.Router();
 

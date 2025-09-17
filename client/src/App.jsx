@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { NotificationProvider, useNotifications } from './contexts/NotificationContext';
+import {
+  NotificationProvider,
+  useNotifications,
+} from './contexts/NotificationContext';
 import NotificationToast from './components/NotificationToast';
 import './App.css';
 
@@ -19,28 +22,28 @@ import { STORAGE_KEYS, ROUTES } from './constants/index.js';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
-    const navigate = useNavigate();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        console.log("Protected route - token check:", !!token);
-        
-        if (!token) {
-            console.log("No token found, redirecting to login");
-            navigate(ROUTES.LOGIN, { replace: true });
-        } else {
-            setIsAuthenticated(true);
-        }
-        setIsLoading(false);
-    }, [navigate]);
+  useEffect(() => {
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    console.log('Protected route - token check:', !!token);
 
-    if (isLoading) {
-        return <div>Loading...</div>;
+    if (!token) {
+      console.log('No token found, redirecting to login');
+      navigate(ROUTES.LOGIN, { replace: true });
+    } else {
+      setIsAuthenticated(true);
     }
+    setIsLoading(false);
+  }, [navigate]);
 
-    return isAuthenticated ? children : null;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return isAuthenticated ? children : null;
 };
 
 // Notification Toasts Component
@@ -49,7 +52,7 @@ const NotificationToasts = () => {
 
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2">
-      {notifications.map((notification) => (
+      {notifications.map(notification => (
         <NotificationToast
           key={notification.id}
           notification={notification}
@@ -61,46 +64,46 @@ const NotificationToasts = () => {
 };
 
 function App() {
-    console.log('App rendering');
+  console.log('App rendering');
 
-    return (
-        <div className="app-container">
-            <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/verify" element={<Verify />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/admin/login" element={<AdminLogin />} />
+  return (
+    <div className="app-container">
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-                {/* Protected User Dashboard */}
-                <Route
-                    path="/dashboard/*"
-                    element={
-                        <ProtectedRoute>
-                            <DashboardLayout>
-                                <Routes>
-                                    <Route index element={<DashboardMap />} />
-                                    <Route path="submit" element={<SubmitReport />} />
-                                    <Route path="my-reports" element={<MyReports />} />
-                                </Routes>
-                            </DashboardLayout>
-                        </ProtectedRoute>
-                    }
-                />
+        {/* Protected User Dashboard */}
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Routes>
+                  <Route index element={<DashboardMap />} />
+                  <Route path="submit" element={<SubmitReport />} />
+                  <Route path="my-reports" element={<MyReports />} />
+                </Routes>
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
 
-                {/* Admin Dashboard */}
-                <Route 
-                    path="/admin/dashboard" 
-                    element={
-                        <AdminRoute>
-                            <AdminDashboard />
-                        </AdminRoute>
-                    } 
-                />
-            </Routes>
-        </div>
-    );
+        {/* Admin Dashboard */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+      </Routes>
+    </div>
+  );
 }
 
 export default App;
