@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import NotificationBell from '../components/NotificationBell';
+import { STORAGE_KEYS, ROUTES } from '../constants/index.js';
 
 export default function DashboardLayout({ children }) {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function DashboardLayout({ children }) {
 
     useEffect(() => {
         // Get user name from localStorage or token
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
         if (token) {
             // In a real app, you'd decode the JWT to get user info
             // For now, we'll use a placeholder
@@ -28,8 +29,8 @@ export default function DashboardLayout({ children }) {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        navigate(ROUTES.LOGIN);
     };
 
     const toggleMobileMenu = () => {
@@ -210,15 +211,15 @@ export default function DashboardLayout({ children }) {
                                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                         <span className="text-sm text-gray-600 font-medium">Welcome, {userName}</span>
                                     </div>
-                                    <button
-                                        onClick={handleLogout}
+                    <button
+                        onClick={handleLogout}
                                         className="w-full px-4 py-2 text-red-600 hover:text-white rounded-xl transition-all duration-300 font-medium overflow-hidden group relative"
-                                    >
+                    >
                                         <span className="relative z-10">Logout</span>
                                         <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                    </button>
+                    </button>
                                 </div>
-                            </nav>
+                </nav>
                         </div>
                     )}
                 </div>

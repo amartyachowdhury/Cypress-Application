@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { adminAPI } from "../services/api.js";
+import { STORAGE_KEYS } from "../constants/index.js";
 
 function AdminLogin() {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -22,8 +23,8 @@ function AdminLogin() {
         setError("");
 
         try {
-            const res = await axios.post("http://localhost:5050/api/admin/login", formData);
-            localStorage.setItem("adminToken", res.data.token);
+            const res = await adminAPI.login(formData);
+            localStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, res.data.token);
             navigate("/admin/dashboard");
         } catch (err) {
             console.error("Admin login error:", err);

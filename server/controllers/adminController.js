@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
 import Report from '../models/Report.js';
+import { config } from '../config/index.js';
 
 // Generate JWT Token
 const generateToken = (admin) => {
     return jwt.sign(
         { _id: admin._id.toString() },
-        process.env.JWT_SECRET || 'your_jwt_secret',
+        config.jwtSecret,
         { expiresIn: '24h' }
     );
 };

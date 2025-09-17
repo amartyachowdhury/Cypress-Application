@@ -18,7 +18,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
     cors: {
-        origin: "http://localhost:3002",
+        origin: config.corsOrigin,
         methods: ["GET", "POST"]
     }
 });
@@ -74,10 +74,15 @@ const sendNotification = (userId, notification) => {
 // Make notification function available to routes
 app.locals.sendNotification = sendNotification;
 
+// Import routes
+import authRoutes from './routes/authRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+
 // Routes
-app.use("/api/auth", (await import("./routes/authRoutes.js")).default);
-app.use("/api/reports", (await import("./routes/reportRoutes.js")).default);
-app.use("/api/admin", (await import("./routes/adminRoutes.js")).default);
+app.use("/api/auth", authRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

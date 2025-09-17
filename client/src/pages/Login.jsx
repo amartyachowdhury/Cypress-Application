@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { authAPI } from "../services/api.js";
+import { STORAGE_KEYS, ROUTES } from "../constants/index.js";
 
 function Login() {
     const navigate = useNavigate();
@@ -10,10 +11,10 @@ function Login() {
 
     // Check if user is already logged in
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
         if (token) {
             console.log("Token found, redirecting to dashboard");
-            navigate("/dashboard");
+            navigate(ROUTES.DASHBOARD);
         }
     }, [navigate]);
 
@@ -29,14 +30,14 @@ function Login() {
         console.log("Attempting login...");
 
         try {
-            const res = await axios.post("http://localhost:5050/api/auth/login", formData);
+            const res = await authAPI.login(formData);
             console.log("Login response:", res.data);
             
             if (res.data.token) {
                 console.log("Token received, storing...");
-                localStorage.setItem("token", res.data.token);
+                localStorage.setItem(STORAGE_KEYS.TOKEN, res.data.token);
                 console.log("Navigating to dashboard...");
-                navigate("/dashboard", { replace: true });
+                navigate(ROUTES.DASHBOARD, { replace: true });
             } else {
                 console.error("No token received in response");
                 setError("Login failed - no token received");

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { reportsAPI } from "../services/api.js";
+import { STORAGE_KEYS, ROUTES } from "../constants/index.js";
 
 function SubmitReport() {
     const [title, setTitle] = useState("");
@@ -79,10 +80,10 @@ function SubmitReport() {
         e.preventDefault();
         setSubmitting(true);
 
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
         if (!token) {
             alert("Please log in to submit a report.");
-            return navigate("/login");
+            return navigate(ROUTES.LOGIN);
         }
 
         try {
@@ -108,30 +109,22 @@ function SubmitReport() {
             }
 
             // Submit report with image URLs
-            await axios.post(
-                "http://localhost:5050/api/reports",
-                {
+            await reportsAPI.create({
                     title,
                     description,
                     severity,
-                    category,
-                    address,
-                    images: uploadedImageUrls,
+                category,
+                address,
+                images: uploadedImageUrls,
                     location: {
                         type: "Point",
                         coordinates,
                     },
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            });
 
             setShowSuccess(true);
             setTimeout(() => {
-                navigate("/dashboard");
+                navigate(ROUTES.DASHBOARD);
             }, 2000);
         } catch (err) {
             console.error("❌ Error submitting report:", err);
@@ -217,7 +210,7 @@ function SubmitReport() {
                 <div className="text-center mb-10">
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
                         Submit a Community Report
-                    </h1>
+                </h1>
                     <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
                         Help make our community better by reporting issues that need attention. Your contribution makes a real difference!
                     </p>
@@ -269,12 +262,12 @@ function SubmitReport() {
                                     <label className="block text-lg font-semibold text-gray-700 mb-3">
                                         Report Title *
                                     </label>
-                                    <input
-                                        type="text"
+                <input
+                    type="text"
                                         placeholder="e.g., Pothole on Main Street"
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                        required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
                                         className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
                                     />
                                 </div>
@@ -282,11 +275,11 @@ function SubmitReport() {
                                     <label className="block text-lg font-semibold text-gray-700 mb-3">
                                         Description *
                                     </label>
-                                    <textarea
+                <textarea
                                         placeholder="Please provide a detailed description of the issue..."
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        required
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
                                         rows={5}
                                         className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm resize-none transition-all duration-300"
                                     />
@@ -328,15 +321,15 @@ function SubmitReport() {
                                         <label className="block text-lg font-semibold text-gray-700 mb-3">
                                             Severity Level
                                         </label>
-                                        <select
-                                            value={severity}
-                                            onChange={(e) => setSeverity(e.target.value)}
+                <select
+                    value={severity}
+                    onChange={(e) => setSeverity(e.target.value)}
                                             className="w-full border-2 border-gray-200 rounded-2xl p-5 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-lg bg-white/50 backdrop-blur-sm transition-all duration-300"
                                         >
                                             <option value="low">Low - Minor issue</option>
                                             <option value="medium">Medium - Moderate concern</option>
                                             <option value="high">High - Urgent attention needed</option>
-                                        </select>
+                </select>
                                     </div>
                                 </div>
                                 <div className="flex justify-between">
@@ -395,7 +388,7 @@ function SubmitReport() {
                                 )}
 
                                 <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
-                                    {loading ? (
+                {loading ? (
                                         <div className="flex items-center space-x-4">
                                             <div className="relative">
                                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -403,7 +396,7 @@ function SubmitReport() {
                                             </div>
                                             <span className="text-blue-700 text-lg font-medium">Detecting your location...</span>
                                         </div>
-                                    ) : coordinates ? (
+                ) : coordinates ? (
                                         <div className="flex items-center space-x-4">
                                             <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -566,8 +559,8 @@ function SubmitReport() {
                                     >
                                         ← Previous
                                     </button>
-                                    <button
-                                        type="submit"
+                <button
+                    type="submit"
                                         disabled={submitting || !coordinates}
                                         className="px-10 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed font-semibold text-lg shadow-lg transform hover:scale-105 disabled:hover:scale-100 flex items-center space-x-3"
                                     >
@@ -584,12 +577,12 @@ function SubmitReport() {
                                                 <span>Submit Report</span>
                                             </>
                                         )}
-                                    </button>
+                </button>
                                 </div>
                             </div>
                         )}
                     </div>
-                </form>
+            </form>
             </div>
         </div>
     );

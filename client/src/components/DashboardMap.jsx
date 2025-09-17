@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
+import { reportsAPI } from "../services/api.js";
+import { STORAGE_KEYS, ROUTES } from "../constants/index.js";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -103,12 +104,7 @@ const DashboardMap = () => {
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const response = await axios.get("http://localhost:5050/api/reports/mine", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await reportsAPI.getUserReports();
                 console.log("Fetched reports:", response.data);
                 setReports(response.data);
             } catch (err) {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { adminAPI } from '../services/api.js';
+import { STORAGE_KEYS } from '../constants/index.js';
 
 const AdminRoute = ({ children }) => {
     const [isVerifying, setIsVerifying] = useState(true);
@@ -9,20 +10,18 @@ const AdminRoute = ({ children }) => {
 
     useEffect(() => {
         const verifyAdmin = async () => {
-            const token = localStorage.getItem('adminToken');
+            const token = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
             if (!token) {
                 setIsVerifying(false);
                 return;
             }
 
             try {
-                await axios.get('http://localhost:5050/api/admin/verify', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                await adminAPI.verify();
                 setIsAdmin(true);
             } catch (err) {
                 console.error('Admin verification failed:', err);
-                localStorage.removeItem('adminToken');
+                localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
             } finally {
                 setIsVerifying(false);
             }

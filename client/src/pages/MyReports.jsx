@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { reportsAPI } from "../services/api.js";
+import { STORAGE_KEYS, ROUTES } from "../constants/index.js";
 
 function MyReports() {
     const [reports, setReports] = useState([]);
@@ -20,19 +21,7 @@ function MyReports() {
 
     const fetchReports = async () => {
         try {
-            const token = localStorage.getItem("token");
-            
-            // Check if we have a real token or just a test token
-            if (token === 'test-token') {
-                // No mock data - show empty state for test token
-                setReports([]);
-                setIsLoading(false);
-                return;
-            }
-
-            const response = await axios.get("http://localhost:5050/api/reports/mine", {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await reportsAPI.getUserReports();
             setReports(response.data);
         } catch (err) {
             console.error("Error fetching reports:", err);
@@ -40,8 +29,8 @@ function MyReports() {
                 setError("Authentication failed. Please log in again.");
                 // Redirect to login after a delay
                 setTimeout(() => {
-                    localStorage.removeItem('token');
-                    navigate('/login');
+                    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+                    navigate(ROUTES.LOGIN);
                 }, 2000);
             } else {
                 setError("Failed to load reports. Please try again later.");

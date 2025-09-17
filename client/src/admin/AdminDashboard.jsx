@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { reportsAPI } from '../services/api.js';
+import { STORAGE_KEYS } from '../constants/index.js';
 
 const AdminDashboard = () => {
     const [reports, setReports] = useState([]);
@@ -26,34 +27,19 @@ const AdminDashboard = () => {
             setIsLoading(true);
             setError('');
             
-            const token = localStorage.getItem('adminToken');
+            const token = localStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
             if (!token) {
                 navigate('/admin/login');
                 return;
             }
 
-            const params = new URLSearchParams({
-                page: currentPage,
-                limit: 10,
-                status: selectedStatus,
-                category: selectedCategory,
-                severity: selectedSeverity
-            });
-
-            const response = await axios.get(`http://localhost:5050/api/admin/reports?${params}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            setReports(response.data.reports || response.data);
-            setTotalPages(response.data.totalPages || 1);
-            setTotalReports(response.data.total || response.data.length);
+            const response = await reportsAPI.getAll();
+            setReports(response.data);
         } catch (err) {
             console.error('Error fetching reports:', err);
             
             if (err.response?.status === 401) {
-                localStorage.removeItem('adminToken');
+                localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
                 navigate('/admin/login');
             } else {
                 setError(err.response?.data?.message || 'Failed to load reports.');
@@ -65,32 +51,22 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const token = localStorage.getItem('adminToken');
-            const response = await axios.get('http://localhost:5050/api/admin/stats', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            setStats(response.data);
+            // Calculate stats from reports data
+            const total = reports.length;
+            const open = reports.filter(r => r.status === 'pending').length;
+            const inProgress = reports.filter(r => r.status === 'in progress').length;
+            const resolved = reports.filter(r => r.status === 'resolved').length;
+            
+            setStats({ total, open, inProgress, resolved });
         } catch (err) {
-            console.error('Error fetching stats:', err);
+            console.error('Error calculating stats:', err);
         }
     };
 
     const handleStatusUpdate = async (reportId, newStatus) => {
         try {
-            const token = localStorage.getItem('adminToken');
-            await axios.patch(
-                `http://localhost:5050/api/admin/reports/${reportId}/status`,
-                { status: newStatus },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            await reportsAPI.updateStatus(reportId, newStatus);
             fetchReports();
-            fetchStats();
         } catch (err) {
             console.error("Error updating status:", err);
             alert("Failed to update status. Please try again.");
@@ -98,14 +74,17 @@ const AdminDashboard = () => {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('adminToken');
+        localStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
         navigate('/admin/login');
     };
 
     useEffect(() => {
         fetchReports();
+    }, []);
+
+    useEffect(() => {
         fetchStats();
-    }, [currentPage, selectedStatus, selectedCategory, selectedSeverity]);
+    }, [reports]);
 
     const filteredReports = reports.filter(report => 
         searchTerm === '' || 
