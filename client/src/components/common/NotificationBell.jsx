@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BellIcon } from '@heroicons/react/24/outline';
-import { useNotifications } from '../../contexts/NotificationContext';
+import { useNotifications } from '../../../shared/utils/NotificationContext';
 
 const NotificationBell = () => {
   const { notifications, getUnreadCount, markAllAsRead } = useNotifications();
