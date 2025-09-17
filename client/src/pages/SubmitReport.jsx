@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportsAPI } from '../services/api.js';
-import { STORAGE_KEYS, ROUTES } from '../constants/index.js';
+import { STORAGE_KEYS, ROUTES } from '../utils/constants.js';
 
 function SubmitReport() {
   const [title, setTitle] = useState('');

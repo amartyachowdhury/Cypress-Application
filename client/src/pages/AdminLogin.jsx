@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAPI } from '../services/api.js';
-import { STORAGE_KEYS } from '../constants/index.js';
+import { STORAGE_KEYS } from '../utils/constants.js';
 
 function AdminLogin() {
   const [formData, setFormData] = useState({ email: '', password: '' });

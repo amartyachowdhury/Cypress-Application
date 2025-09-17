@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { adminAPI } from '../services/api.js';
-import { STORAGE_KEYS } from '../constants/index.js';
+import { STORAGE_KEYS } from '../utils/constants.js';
 
 const AdminRoute = ({ children }) => {
   const [isVerifying, setIsVerifying] = useState(true);

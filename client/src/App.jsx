@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import {
   NotificationProvider,
   useNotifications,
-} from './contexts/NotificationContext';
+} from './utils/NotificationContext';
 import NotificationToast from './components/ui/NotificationToast';
 import './App.css';
 
@@ -12,13 +12,13 @@ import Register from './pages/Register';
 import Verify from './pages/Verify';
 import Login from './pages/Login';
 import DashboardLayout from './layouts/DashboardLayout';
-import DashboardMap from './components/DashboardMap';
+import DashboardMap from './components/ui/DashboardMap';
 import SubmitReport from './pages/SubmitReport';
 import MyReports from './pages/MyReports';
-import AdminLogin from './admin/AdminLogin';
-import AdminDashboard from './admin/AdminDashboard';
-import AdminRoute from './admin/AdminRoute';
-import { STORAGE_KEYS, ROUTES } from './constants/index.js';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminRoute from './pages/AdminRoute';
+import { STORAGE_KEYS, ROUTES } from './utils/constants.js';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {

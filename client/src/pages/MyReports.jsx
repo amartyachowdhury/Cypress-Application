@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { reportsAPI } from '../services/api.js';
-import { STORAGE_KEYS, ROUTES } from '../constants/index.js';
+import { STORAGE_KEYS, ROUTES } from '../utils/constants.js';
 
 function MyReports() {
   const [reports, setReports] = useState([]);

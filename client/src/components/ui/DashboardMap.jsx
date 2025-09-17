@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
 import { reportsAPI } from '../services/api.js';
-import { STORAGE_KEYS, ROUTES } from '../constants/index.js';
+import { STORAGE_KEYS, ROUTES } from '../utils/constants.js';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 

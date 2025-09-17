@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportsAPI } from '../services/api.js';
-import { STORAGE_KEYS } from '../constants/index.js';
+import { STORAGE_KEYS } from '../utils/constants.js';
 
 const AdminDashboard = () => {
   const [reports, setReports] = useState([]);
