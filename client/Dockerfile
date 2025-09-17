@@ -13,6 +13,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Copy shared directory
+COPY ../shared ./shared
+
 # Build the application
 RUN npm run build
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_ENDPOINTS, STORAGE_KEYS } from '../utils/constants.js';
+import { API_ENDPOINTS, STORAGE_KEYS } from '../../shared/constants/constants.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 

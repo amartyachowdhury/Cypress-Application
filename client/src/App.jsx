@@ -3,22 +3,22 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import {
   NotificationProvider,
   useNotifications,
-} from './utils/NotificationContext';
-import NotificationToast from './components/ui/NotificationToast';
-import './App.css';
+} from '../shared/utils/NotificationContext';
+import NotificationToast from './components/common/NotificationToast';
+import '../assets/App.css';
 
 // Components
 import Register from './pages/Register';
 import Verify from './pages/Verify';
 import Login from './pages/Login';
 import DashboardLayout from './layouts/DashboardLayout';
-import DashboardMap from './components/ui/DashboardMap';
+import DashboardMap from './components/charts/DashboardMap';
 import SubmitReport from './pages/SubmitReport';
 import MyReports from './pages/MyReports';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminRoute from './pages/AdminRoute';
-import { STORAGE_KEYS, ROUTES } from './utils/constants.js';
+import { STORAGE_KEYS, ROUTES } from '../shared/constants/constants.js';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {

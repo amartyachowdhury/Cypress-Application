@@ -13,8 +13,8 @@ RUN npm install --only=production
 # Copy source code
 COPY server/ .
 
-# Copy config directory
-COPY config ./config
+# Copy shared directory
+COPY shared ./shared
 
 # Create uploads directory
 RUN mkdir -p uploads

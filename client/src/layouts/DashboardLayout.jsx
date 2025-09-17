@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import NotificationBell from '../components/ui/NotificationBell';
-import { STORAGE_KEYS, ROUTES } from '../utils/constants.js';
+import NotificationBell from '../components/common/NotificationBell';
+import { STORAGE_KEYS, ROUTES } from '../../shared/constants/constants.js';
 
 export default function DashboardLayout({ children }) {
   const navigate = useNavigate();
