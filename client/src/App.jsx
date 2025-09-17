@@ -4,7 +4,7 @@ import {
   NotificationProvider,
   useNotifications,
 } from './contexts/NotificationContext';
-import NotificationToast from './components/NotificationToast';
+import NotificationToast from './components/ui/NotificationToast';
 import './App.css';
 
 // Components

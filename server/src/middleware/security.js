@@ -1,6 +1,6 @@
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { config } from '../config/index.js';
+import { cors, rateLimit as rateLimitConfig, authRateLimit, reportRateLimit } from '../../../config/index.js';
 
 // Rate limiting configurations
 export const createRateLimit = (windowMs, max, message) => {
@@ -23,25 +23,13 @@ export const createRateLimit = (windowMs, max, message) => {
 };
 
 // General rate limiting
-export const generalLimiter = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  100, // limit each IP to 100 requests per windowMs
-  'Too many requests from this IP, please try again later.',
-);
+export const generalLimiter = rateLimit(rateLimitConfig);
 
 // Auth rate limiting (stricter)
-export const authLimiter = createRateLimit(
-  15 * 60 * 1000, // 15 minutes
-  5, // limit each IP to 5 requests per windowMs
-  'Too many authentication attempts, please try again later.',
-);
+export const authLimiter = rateLimit(authRateLimit);
 
 // Report submission rate limiting
-export const reportLimiter = createRateLimit(
-  60 * 60 * 1000, // 1 hour
-  10, // limit each IP to 10 reports per hour
-  'Too many reports submitted, please try again later.',
-);
+export const reportLimiter = rateLimit(reportRateLimit);
 
 // Helmet security configuration
 export const helmetConfig = helmet({
@@ -67,29 +55,7 @@ export const helmetConfig = helmet({
 });
 
 // CORS configuration
-export const corsConfig = {
-  origin: function(origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) { return callback(null, true); }
-
-    const allowedOrigins = [
-      config.corsOrigin,
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://cypress-app.vercel.app', // Add your production domain
-    ];
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
+export const corsConfig = cors;
 
 // Request sanitization
 export const sanitizeRequest = (req, res, next) => {
