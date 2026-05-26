@@ -5,6 +5,7 @@ A full-stack web application that allows citizens to report and track local issu
 ## Features
 
 ### User Features
+
 - 🔐 User Authentication (JWT)
 - 📝 Submit Reports with Location
 - 🗺️ Interactive Map View
@@ -13,6 +14,7 @@ A full-stack web application that allows citizens to report and track local issu
 - 📸 Image Upload Support
 
 ### Admin Features
+
 - 👑 Secure Admin Panel
 - 📋 View All Reports
 - 🔄 Update Report Status
@@ -22,6 +24,7 @@ A full-stack web application that allows citizens to report and track local issu
 ## Tech Stack
 
 ### Frontend
+
 - React.js with Vite
 - React Router for navigation
 - Tailwind CSS for styling
@@ -29,6 +32,7 @@ A full-stack web application that allows citizens to report and track local issu
 - Leaflet for maps
 
 ### Backend
+
 - Node.js & Express.js
 - MongoDB with Mongoose
 - JWT for authentication
@@ -37,7 +41,7 @@ A full-stack web application that allows citizens to report and track local issu
 
 ## Project Structure
 
-```
+```text
 Cypress-Application/
 ├── client/                    # Frontend React application
 │   ├── src/
@@ -69,9 +73,9 @@ Cypress-Application/
 └── README.md
 ```
 
+## Prerequisites
 
-### Prerequisites
-- Node.js (v14 or higher)
+- Node.js (v18 or higher)
 - MongoDB or Supabase account
 - npm or yarn
 
@@ -94,7 +98,8 @@ cd Cypress-Application
 ```
 
 **Default Admin Credentials:**
-- Email: admin@cypress.com
+
+- Email: `admin@cypress.com`
 - Password: admin123
 
 For detailed Docker setup instructions, see [DOCKER.md](DOCKER.md).
@@ -103,25 +108,23 @@ For detailed Docker setup instructions, see [DOCKER.md](DOCKER.md).
 
 If you prefer to run without Docker:
 
-### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB
-- npm or yarn
-
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone <your-repo-url>
    cd Cypress-Application
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm run install:all
    ```
 
 3. **Set up environment variables:**
+
    ```bash
    # Copy environment files
    cp env.example .env
@@ -129,6 +132,7 @@ If you prefer to run without Docker:
    ```
 
 4. **Start the development servers:**
+
    ```bash
    # Start both frontend and backend
    npm run dev
@@ -139,8 +143,8 @@ If you prefer to run without Docker:
    ```
 
 5. **Access the application:**
-   - Frontend: http://localhost:3000
-   - Backend: http://localhost:5050
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend: [http://localhost:5050](http://localhost:5050)
 
 ## Contributing
 
@@ -152,4 +156,4 @@ If you prefer to run without Docker:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
